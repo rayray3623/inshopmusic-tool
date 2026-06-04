@@ -3,95 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Content Assistant</title>
+<title>Content Assistant v1</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--gold:#B8974A;--gold-dark:#8A6E35;--gold-light:#E8D9B8;--cream:#FAF8F4;--border:#E0D9CE;--border-strong:#C8BFB0;--text:#1A1815;--text-mid:#5A5248;--text-muted:#9A9088;--surface:#FFFFFF;--surface-2:#F8F5F0}
+:root{--gold:#B8974A;--gold-dark:#8A6E35;--cream:#FAF8F4;--border:#E0D9CE;--border-strong:#C8BFB0;--text:#1A1815;--text-muted:#9A9088;--surface:#FFFFFF;--surface-2:#F8F5F0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--cream);color:var(--text);font-family:'Montserrat',sans-serif;font-weight:300;font-size:13px;min-height:100vh;line-height:1.6}
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .wordmark{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:18px;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase}
-.wordmark span{font-size:10px;letter-spacing:0.15em;color:var(--text-muted);font-family:'Montserrat',sans-serif;font-weight:300;margin-left:14px;vertical-align:middle}
-.header-right{display:flex;align-items:center;gap:10px}
-.api-input{background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:300;padding:6px 12px;border-radius:2px;width:200px;letter-spacing:0.03em}
-.api-input:focus{outline:none;border-color:var(--gold);color:var(--text)}
-.api-input::placeholder{color:var(--text-muted)}
-.api-save{background:transparent;border:1px solid var(--gold);color:var(--gold-dark);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.1em;padding:6px 14px;border-radius:2px;cursor:pointer;text-transform:uppercase;transition:all 0.2s}
-.api-save:hover{background:var(--gold);color:white}
-.status-dot{width:7px;height:7px;border-radius:50%;background:var(--border-strong)}
-.status-dot.ok{background:#7AAA7A}
-.status-text{font-size:11px;color:var(--text-muted);letter-spacing:0.05em}
-.layout{display:grid;grid-template-columns:310px 1fr;min-height:calc(100vh - 61px)}
-.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 22px;position:sticky;top:61px;height:calc(100vh - 61px);overflow-y:auto}
-.section-label{font-size:10px;letter-spacing:0.2em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;margin-top:20px}
-.section-label:first-child{margin-top:0}
-.ch-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ch-btn{padding:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:400;letter-spacing:0.08em;cursor:pointer;border-radius:2px;transition:all 0.2s;text-align:center}
-.ch-btn.active{border-color:var(--gold);color:var(--gold-dark);background:#FBF7EE;font-weight:500}
-.ch-btn:hover:not(.active){border-color:var(--border-strong);color:var(--text-mid)}
-select,input[type="text"]{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;padding:8px 12px;border-radius:2px;margin-bottom:8px;appearance:none;-webkit-appearance:none}
+.wordmark span{font-size:10px;color:var(--text-muted);font-family:'Montserrat',sans-serif;font-weight:300;margin-left:14px;vertical-align:middle;letter-spacing:0.1em}
+.key-area{display:flex;align-items:center;gap:8px}
+.key-input{background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:11px;padding:6px 12px;border-radius:2px;width:220px}
+.key-input:focus{outline:none;border-color:var(--gold)}
+.key-btn{background:transparent;border:1px solid var(--gold);color:var(--gold-dark);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.1em;padding:6px 14px;border-radius:2px;cursor:pointer;text-transform:uppercase}
+.key-btn:hover{background:var(--gold);color:white}
+.key-status{font-size:11px;color:var(--text-muted)}
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 61px)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 20px;position:sticky;top:61px;height:calc(100vh - 61px);overflow-y:auto}
+.slabel{font-size:10px;letter-spacing:0.2em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;margin-top:20px;display:block}
+.slabel:first-child{margin-top:0}
+select,input[type=text]{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;padding:8px 12px;border-radius:2px;margin-bottom:8px;appearance:none;-webkit-appearance:none}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239A9088'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:28px}
-select:focus,input[type="text"]:focus{outline:none;border-color:var(--gold)}
-select option{background:white}
-.field-label{font-size:10px;letter-spacing:0.15em;color:var(--text-muted);text-transform:uppercase;display:block;margin-bottom:4px}
-.brand-territory{font-size:12px;color:var(--gold-dark);font-style:italic;font-family:'Cormorant Garamond',serif;margin-top:-2px;margin-bottom:10px;min-height:16px}
-.input-row{display:flex;gap:6px;align-items:flex-start;margin-bottom:8px}
-.input-row input{margin-bottom:0;flex:1}
-.rand-btn{padding:8px 10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:10px;cursor:pointer;border-radius:2px;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
-.rand-btn:hover{border-color:var(--gold);color:var(--gold-dark)}
-.gen-btn{width:100%;padding:11px;background:var(--gold);color:white;border:none;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;border-radius:2px;margin-top:6px;transition:all 0.2s}
+select:focus,input[type=text]:focus{outline:none;border-color:var(--gold)}
+.territory{font-size:12px;color:var(--gold-dark);font-style:italic;font-family:'Cormorant Garamond',serif;margin-top:-4px;margin-bottom:10px;min-height:16px}
+.row{display:flex;gap:6px;align-items:flex-start;margin-bottom:8px}
+.row input{margin-bottom:0;flex:1}
+.rbtn{padding:8px 10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-muted);font-size:10px;cursor:pointer;border-radius:2px;flex-shrink:0;transition:all 0.15s}
+.rbtn:hover{border-color:var(--gold);color:var(--gold-dark)}
+.gen-btn{width:100%;padding:12px;background:var(--gold);color:white;border:none;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;border-radius:2px;margin-top:8px;transition:all 0.2s}
 .gen-btn:hover{background:var(--gold-dark)}
 .gen-btn:disabled{opacity:0.4;cursor:not-allowed}
-.main{padding:28px 36px;background:var(--cream)}
+.main{padding:32px 40px}
 .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:400px;text-align:center;gap:14px}
-.placeholder-mark{width:72px;height:72px;opacity:0.25}
-.placeholder-text{font-size:11px;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase}
-.output-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:14px}
-.output-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--text);letter-spacing:0.05em}
-.output-subtitle{font-size:11px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
-.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px}
-.tab{padding:5px 12px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.15s}
-.tab:hover{border-color:var(--border-strong);color:var(--text-mid)}
-.tab.active{border-color:var(--gold);color:var(--gold-dark);background:#FBF7EE;font-weight:500}
-.output-block{margin-bottom:14px}
-.out-label{font-size:10px;letter-spacing:0.18em;color:var(--gold-dark);text-transform:uppercase;margin-bottom:6px}
-.out-card{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:14px 16px;position:relative}
+.ph-mark{width:72px;height:72px;opacity:0.2}
+.ph-text{font-size:11px;color:var(--text-muted);letter-spacing:0.15em;text-transform:uppercase}
+.out-header{border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:24px}
+.out-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--text)}
+.out-sub{font-size:11px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px}
+.out-block{margin-bottom:24px}
+.out-label{font-size:10px;letter-spacing:0.18em;color:var(--gold-dark);text-transform:uppercase;margin-bottom:8px}
+.out-card{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:16px 18px;position:relative}
 .out-text{font-size:13px;color:var(--text);line-height:1.75;white-space:pre-wrap;font-weight:300;padding-right:64px}
-.copy-btn{position:absolute;top:10px;right:10px;background:transparent;border:1px solid var(--border-strong);color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:2px;cursor:pointer;transition:all 0.15s}
+.copy-btn{position:absolute;top:12px;right:12px;background:transparent;border:1px solid var(--border-strong);color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:2px;cursor:pointer;transition:all 0.15s}
 .copy-btn:hover{border-color:var(--gold);color:var(--gold-dark)}
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 0;gap:16px;color:var(--text-muted);font-size:12px;letter-spacing:0.1em}
-.loading-bar{width:200px;height:1px;background:var(--border);position:relative;overflow:hidden}
-.loading-bar::after{content:'';position:absolute;top:0;left:-60px;width:60px;height:1px;background:var(--gold);animation:slide 1.4s ease-in-out infinite}
-@keyframes slide{0%{left:-60px}100%{left:200px}}
-.loading-msg{font-size:11px;color:var(--text-muted);letter-spacing:0.08em;min-height:20px;text-align:center}
-.error-card{background:#FEF8F8;border:1px solid #F0D0D0;border-radius:2px;padding:14px 16px;color:#8A3030;font-size:13px;line-height:1.7}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 0;gap:16px}
+.lbar{width:160px;height:1px;background:var(--border);position:relative;overflow:hidden}
+.lbar::after{content:'';position:absolute;top:0;left:-50px;width:50px;height:1px;background:var(--gold);animation:sl 1.3s ease-in-out infinite}
+@keyframes sl{0%{left:-50px}100%{left:160px}}
+.lmsg{font-size:11px;color:var(--text-muted);letter-spacing:0.08em}
+.err{background:#FEF8F8;border:1px solid #F0D0D0;border-radius:2px;padding:16px;color:#8A3030;font-size:13px;line-height:1.7}
 ::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
 </head>
 <body>
+
 <header class="header">
-  <div class="wordmark">Content Assistant <span>InShopMusic · Studio Shoot Music</span></div>
-  <div class="header-right">
-    <div class="status-dot" id="status-dot"></div>
-    <span class="status-text" id="status-text">No API key</span>
-    <input class="api-input" type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off" />
-    <button class="api-save" onclick="saveKey()">Save</button>
+  <div class="wordmark">Content Assistant <span>v1 · Image & Music</span></div>
+  <div class="key-area">
+    <span class="key-status" id="kstat">No key</span>
+    <input class="key-input" type="password" id="kval" placeholder="sk-ant-api03-..." autocomplete="off">
+    <button class="key-btn" onclick="saveKey()">Save</button>
   </div>
 </header>
 
 <div class="layout">
 <aside class="sidebar">
-  <div class="section-label">Channel</div>
-  <div class="ch-toggle">
-    <button class="ch-btn active" id="bi" onclick="swCh('inshop')">InShopMusic</button>
-    <button class="ch-btn" id="bs" onclick="swCh('studio')">Studio Shoot Music</button>
-  </div>
 
-  <div id="inshop-form">
-    <div class="section-label">Brand</div>
-    <label class="field-label">House / Series</label>
+  <span class="slabel">Channel</span>
+  <select id="channel" onchange="onChannel()">
+    <option value="inshop">InShopMusic</option>
+    <option value="studio">Studio Shoot Music</option>
+  </select>
+
+  <div id="inshop-fields">
+    <span class="slabel">Brand</span>
     <select id="brand" onchange="onBrand()">
       <option value="">— select —</option>
       <option>Chanel</option><option>Prada</option><option>Hermes</option><option>Dior</option>
@@ -99,322 +85,248 @@ select option{background:white}
       <option>Gucci</option><option>Balenciaga</option><option>Bottega Veneta</option>
       <option>Burberry</option><option>Monvoy</option>
     </select>
-    <div class="brand-territory" id="territory"></div>
-    <div class="section-label">Session</div>
-    <label class="field-label">Session name</label>
-    <input type="text" id="sname" placeholder="e.g. Monvoy Valletta Sessions" />
-    <label class="field-label">Location & atmosphere</label>
-    <div class="input-row">
-      <input type="text" id="loc" placeholder="e.g. Valletta, late afternoon" />
-      <button class="rand-btn" onclick="randomLocation()">↺</button>
+    <div class="territory" id="territory"></div>
+
+    <span class="slabel">Session</span>
+    <input type="text" id="sname" placeholder="e.g. Monvoy Valletta Sessions">
+
+    <span class="slabel">Location & atmosphere</span>
+    <div class="row">
+      <input type="text" id="loc" placeholder="e.g. Valletta, late afternoon">
+      <button class="rbtn" onclick="randLoc()" title="Random">↺</button>
     </div>
-    <label class="field-label">Styling</label>
-    <div class="input-row">
-      <input type="text" id="styling" placeholder="e.g. ivory silk, minimal jewellery" />
-      <button class="rand-btn" onclick="randomStyling()">↺</button>
+
+    <span class="slabel">Styling</span>
+    <div class="row">
+      <input type="text" id="styling" placeholder="e.g. ivory silk, minimal jewellery">
+      <button class="rbtn" onclick="randStyle()" title="Random">↺</button>
     </div>
   </div>
 
-  <div id="studio-form" style="display:none">
-    <div class="section-label">Session</div>
-    <label class="field-label">Session name</label>
-    <input type="text" id="ssname" placeholder="e.g. Editorial Session 01" />
-    <label class="field-label">Mood / atmosphere</label>
-    <div class="input-row">
-      <input type="text" id="smood" placeholder="e.g. high energy fashion shoot" />
-      <button class="rand-btn" onclick="randomStudioMood()">↺</button>
+  <div id="studio-fields" style="display:none">
+    <span class="slabel">Session</span>
+    <input type="text" id="ssname" placeholder="e.g. Editorial Session 01">
+    <span class="slabel">Mood</span>
+    <div class="row">
+      <input type="text" id="smood" placeholder="e.g. high energy fashion shoot">
+      <button class="rbtn" onclick="randMood()" title="Random">↺</button>
     </div>
   </div>
 
-  <div class="section-label">Output</div>
-  <label class="field-label">Duration</label>
+  <span class="slabel">Duration</span>
   <select id="duration">
     <option value="1">1 hour</option>
     <option value="2" selected>2 hours</option>
     <option value="3">3 hours</option>
   </select>
-  <label class="field-label">Package type</label>
-  <select id="otype">
-    <option value="full">Full content package</option>
-    <option value="production">Production only</option>
-    <option value="social">Social copy only</option>
-    <option value="outreach">Outreach brief only</option>
-  </select>
-  <button class="gen-btn" id="gen-btn" onclick="generate()">Generate</button>
+
+  <button class="gen-btn" id="gbtn" onclick="generate()">Generate</button>
+
 </aside>
 
 <main class="main" id="main">
   <div class="placeholder">
-    <svg class="placeholder-mark" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-      <text x="4" y="62" font-family="Cormorant Garamond, serif" font-size="64" font-weight="300" fill="#B8974A" letter-spacing="-4">MV</text>
+    <svg class="ph-mark" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <text x="2" y="62" font-family="Cormorant Garamond,serif" font-size="64" font-weight="300" fill="#B8974A" letter-spacing="-4">MV</text>
     </svg>
-    <div class="placeholder-text">Select a channel and brand to begin</div>
+    <div class="ph-text">Select a brand to begin</div>
   </div>
 </main>
 </div>
 
 <script>
-const PROFILES={
-  "Chanel":{t:"Parisian elegance",a:"Avenue Montaigne. Effortless French grace. She does not need to be noticed.",s:"Elegant vocal house, piano stabs, refined French house influences, 118-122 BPM",p:"Soft pink, cream, ivory, black accents",cv:"Spare, poetic, Parisian. Implies more than it says.",model:"French woman, blonde or soft brunette, 20-25, refined beauty, soft femininity, graceful rather than overtly sexy",expression:"Calm, composed, slightly distant — not performing for the camera",lighting:"Soft diffused studio light, warm and even, no harsh shadows",background:"Clean cream or blush pink studio, generous empty space for typography overlay"},
-  "Prada":{t:"Intellectual fashion",a:"Milan. Architectural luxury. Intelligence as aesthetic.",s:"Minimal deep house, sparse vocals, dark bass, modern synths, 120-124 BPM",p:"Burgundy, black, white",cv:"Precise, minimal, slightly cold. One sentence that makes you think.",model:"Italian woman, dark hair, 20-26, strong features, intelligent expression, slightly aloof editorial beauty",expression:"Direct, unreadable, confident — she is the architecture",lighting:"High contrast, clean shadows, architectural light",background:"Stark white or deep burgundy, minimal, space for bold typography"},
-  "Hermes":{t:"Heritage luxury",a:"Quiet confidence. Expensive without trying. Craftsmanship self-evident.",s:"Organic house, acoustic textures, warm bass, refined lounge, 116-120 BPM",p:"Cognac, orange, cream",cv:"Unhurried, wise. Like something a grandmother who wore Hermes would say.",model:"European woman, 20-26, timeless natural beauty, graceful, unaffected elegance",expression:"Warm but self-contained, unhurried, at ease with herself",lighting:"Warm golden quality, natural and flattering, soft shadows",background:"Warm cognac and cream tones, soft and uncluttered, space for refined typography"},
-  "Dior":{t:"Couture glamour",a:"Paris Fashion Week. Glamour with gravity. Couture as architecture.",s:"Runway house, female vocal chops, bright synths, fashion energy, 122-126 BPM",p:"Grey, white, silver",cv:"Romantic but measured. Opens a fashion editorial.",model:"Parisian woman, 20-25, couture beauty, sophisticated glamour, flawless complexion",expression:"Assured, romantic, aware of her effect — glamour worn with gravity",lighting:"Soft glamour lighting, slight luminosity, flattering and cinematic",background:"Pale grey or silver-white, clean and elegant, space for Dior-style typography"},
-  "Armani":{t:"Effortless sophistication",a:"Luxury hotel lobby. Italian ease. Power worn lightly.",s:"Lounge house, smooth keys, warm bass, soft vocals, 118-122 BPM",p:"Greige, navy, charcoal",cv:"Quiet authority. The room adjusts to them.",model:"Mediterranean woman, 20-26, sophisticated, understated, relaxed authority",expression:"Effortless, unhurried — the room adjusts to her, not the reverse",lighting:"Warm, even, luxurious — hotel lobby quality light",background:"Greige or warm charcoal, uncluttered, space for clean typography"},
-  "Saint Laurent":{t:"Night-time glamour",a:"Paris after dark. Confidence as currency. The boutique stays open late.",s:"Dark house, moody synths, sparse vocals, deep bass, 122-126 BPM",p:"Black, gold",cv:"One line with an edge. Certain, not aggressive.",model:"Woman, 20-25, dramatic beauty, strong features, high confidence, striking rather than merely pretty",expression:"Owns the room. Not aggressive — simply certain.",lighting:"Low key, dramatic shadows, evening quality, pools of warm light against black",background:"Deep black or near-black, gold accent tones, space for bold typography"},
-  "Louis Vuitton":{t:"Travel luxury",a:"Airport lounge meets flagship. Movement as identity.",s:"Travel house, airy pads, global influences, smooth percussion, 120-124 BPM",p:"Camel, brown, cream",cv:"Suggests movement. The feeling of a departure gate at a good airport.",model:"Woman, 20-26, worldly, sophisticated — she has been somewhere extraordinary and is about to leave again",expression:"Curious, confident, mid-journey — between arrivals",lighting:"Clean bright natural light, airport lounge or hotel lobby quality",background:"Warm camel and cream tones, travel context suggested, space for typography"},
-  "Gucci":{t:"Fashion glamour",a:"Milan. Confident. Glamour worn without apology.",s:"Vocal house, energetic grooves, female vocals, Italian fashion energy, 122-126 BPM",p:"Emerald green, deep red, gold, black",cv:"Warmer and more exuberant. Still luxury — but with a smile.",model:"Woman, 20-25, extremely beautiful, glamorous, fashion-forward, Italian warmth",expression:"Confident, charismatic, enjoying herself — glamour as pleasure not armour",lighting:"Rich and warm, slightly theatrical, confident shadows",background:"Emerald green or deep red, luxurious and bold, space for expressive typography"},
-  "Balenciaga":{t:"Future luxury",a:"Fashion week in 2030. Bold. Electric. Challenges its own category.",s:"Tech house, futuristic production, powerful urban energy, 124-128 BPM",p:"Black, charcoal, silver, electric blue",cv:"Minimal, slightly confrontational. Forward-facing.",model:"Woman, 20-25, striking, dramatic, almost otherworldly — powerful rather than conventionally beautiful",expression:"Serious, unapproachable, powerful — the future has no time for charm",lighting:"Hard, technical, almost clinical — high contrast electric quality",background:"Black or deep charcoal, graphic and uncompromising, space for minimal typography"},
-  "Bottega Veneta":{t:"Quiet luxury",a:"When your own initials are enough. Private wealth, public restraint.",s:"Organic house, luxury lounge, refined deep grooves, understated, 118-122 BPM",p:"Olive, forest green, deep chocolate, cream, taupe",cv:"Says less than it means. Rewards a second read.",model:"European woman, 20-26, beautiful but understated, natural confidence, seems unaware she is being photographed",expression:"Natural, self-contained, not performing — simply present",lighting:"Natural organic light, slightly diffused, green or golden tones",background:"Olive or warm cream, organic and unforced, space for restrained typography"},
-  "Burberry":{t:"British heritage travel",a:"First-class rail. Mayfair hotel. Exploration as British tradition.",s:"Sophisticated deep house, piano motifs, atmospheric strings, warm pads, 118-122 BPM",p:"Camel, stone, beige, forest green, navy",cv:"British understatement. Implies far more than it says.",model:"British woman, 20-26, exceptionally attractive, refined elegance, independent spirit",expression:"Confident, intelligent, quietly adventurous",lighting:"Natural British light, slightly overcast quality, atmospheric and real",background:"Camel and stone tones, suggest travel without being literal, space for typography"},
-  "Monvoy":{t:"Luxury in motion",a:"The moment between destinations. She is not trying to be seen — she is arriving. Those who know, know.",s:"Mediterranean organic house, warm bass, elegant female vocals, guitar accents, cinematic atmosphere, 118-122 BPM",p:"Mediterranean blue, deep navy, ivory, honey tan, soft gold, stone",cv:"Carries the feeling of a place. Makes you want to be somewhere.",model:"Mediterranean woman, 20-26, exceptionally beautiful, Monica Bellucci or Eiza Gonzalez register — flawless complexion, striking eyes, natural rather than posed",expression:"Natural confidence, mid-arrival — going somewhere, not posing. Not trying to be seen.",lighting:"Mediterranean golden hour, warm and cinematic, late afternoon light, soft long shadows",background:"Mediterranean blue or deep navy with ivory and honey tones, suggest arrival — harbour light, warm stone, departure — space for elegant typography"}
+const P={
+  Chanel:{t:"Parisian elegance",a:"Avenue Montaigne. Effortless French grace. She does not need to be noticed.",s:"Elegant vocal house, piano stabs, refined French house influences, 118-122 BPM",p:"Soft pink, cream, ivory, black accents",model:"French woman, blonde or soft brunette, 20-25, refined beauty, soft femininity, graceful rather than overtly sexy",expr:"Calm, composed, slightly distant — not performing for the camera",light:"Soft diffused studio light, warm and even, no harsh shadows",bg:"Clean cream or blush pink studio, generous empty space for typography overlay"},
+  Prada:{t:"Intellectual fashion",a:"Milan. Architectural luxury. Intelligence as aesthetic.",s:"Minimal deep house, sparse vocals, dark bass, modern synths, 120-124 BPM",p:"Burgundy, black, white",model:"Italian woman, dark hair, 20-26, strong features, intelligent expression, slightly aloof editorial beauty",expr:"Direct, unreadable, confident — she is the architecture",light:"High contrast, clean shadows, architectural light",bg:"Stark white or deep burgundy, minimal, space for bold typography"},
+  Hermes:{t:"Heritage luxury",a:"Quiet confidence. Expensive without trying. Craftsmanship self-evident.",s:"Organic house, acoustic textures, warm bass, refined lounge, 116-120 BPM",p:"Cognac, orange, cream",model:"European woman, 20-26, timeless natural beauty, graceful, unaffected elegance",expr:"Warm but self-contained, unhurried, at ease with herself",light:"Warm golden quality, natural and flattering, soft shadows",bg:"Warm cognac and cream tones, soft and uncluttered, space for refined typography"},
+  Dior:{t:"Couture glamour",a:"Paris Fashion Week. Glamour with gravity. Couture as architecture.",s:"Runway house, female vocal chops, bright synths, fashion energy, 122-126 BPM",p:"Grey, white, silver",model:"Parisian woman, 20-25, couture beauty, sophisticated glamour, flawless complexion",expr:"Assured, romantic, aware of her effect — glamour worn with gravity",light:"Soft glamour lighting, slight luminosity, flattering and cinematic",bg:"Pale grey or silver-white, clean and elegant, space for Dior-style typography"},
+  Armani:{t:"Effortless sophistication",a:"Luxury hotel lobby. Italian ease. Power worn lightly.",s:"Lounge house, smooth keys, warm bass, soft vocals, 118-122 BPM",p:"Greige, navy, charcoal",model:"Mediterranean woman, 20-26, sophisticated, understated, relaxed authority",expr:"Effortless, unhurried — the room adjusts to her, not the reverse",light:"Warm, even, luxurious — hotel lobby quality light",bg:"Greige or warm charcoal, uncluttered, space for clean typography"},
+  "Saint Laurent":{t:"Night-time glamour",a:"Paris after dark. Confidence as currency. The boutique stays open late.",s:"Dark house, moody synths, sparse vocals, deep bass, 122-126 BPM",p:"Black, gold",model:"Woman, 20-25, dramatic beauty, strong features, high confidence, striking rather than merely pretty",expr:"Owns the room. Not aggressive — simply certain.",light:"Low key, dramatic shadows, evening quality, pools of warm light against black",bg:"Deep black or near-black, gold accent tones, space for bold typography"},
+  "Louis Vuitton":{t:"Travel luxury",a:"Airport lounge meets flagship. Movement as identity.",s:"Travel house, airy pads, global influences, smooth percussion, 120-124 BPM",p:"Camel, brown, cream",model:"Woman, 20-26, worldly, sophisticated — she has been somewhere extraordinary and is about to leave again",expr:"Curious, confident, mid-journey — between arrivals",light:"Clean bright natural light, airport lounge or hotel lobby quality",bg:"Warm camel and cream tones, travel context suggested, space for typography"},
+  Gucci:{t:"Fashion glamour",a:"Milan. Confident. Glamour worn without apology.",s:"Vocal house, energetic grooves, female vocals, Italian fashion energy, 122-126 BPM",p:"Emerald green, deep red, gold, black",model:"Woman, 20-25, extremely beautiful, glamorous, fashion-forward, Italian warmth",expr:"Confident, charismatic, enjoying herself — glamour as pleasure not armour",light:"Rich and warm, slightly theatrical, confident shadows",bg:"Emerald green or deep red, luxurious and bold, space for expressive typography"},
+  Balenciaga:{t:"Future luxury",a:"Fashion week in 2030. Bold. Electric. Challenges its own category.",s:"Tech house, futuristic production, powerful urban energy, 124-128 BPM",p:"Black, charcoal, silver, electric blue",model:"Woman, 20-25, striking, dramatic, almost otherworldly — powerful rather than conventionally beautiful",expr:"Serious, unapproachable, powerful — the future has no time for charm",light:"Hard, technical, almost clinical — high contrast electric quality",bg:"Black or deep charcoal, graphic and uncompromising, space for minimal typography"},
+  "Bottega Veneta":{t:"Quiet luxury",a:"When your own initials are enough. Private wealth, public restraint.",s:"Organic house, luxury lounge, refined deep grooves, understated, 118-122 BPM",p:"Olive, forest green, deep chocolate, cream, taupe",model:"European woman, 20-26, beautiful but understated, natural confidence, seems unaware she is being photographed",expr:"Natural, self-contained, not performing — simply present",light:"Natural organic light, slightly diffused, green or golden tones",bg:"Olive or warm cream, organic and unforced, space for restrained typography"},
+  Burberry:{t:"British heritage travel",a:"First-class rail. Mayfair hotel. Exploration as British tradition.",s:"Sophisticated deep house, piano motifs, atmospheric strings, warm pads, 118-122 BPM",p:"Camel, stone, beige, forest green, navy",model:"British woman, 20-26, exceptionally attractive, refined elegance, independent spirit",expr:"Confident, intelligent, quietly adventurous",light:"Natural British light, slightly overcast quality, atmospheric and real",bg:"Camel and stone tones, suggest travel without being literal, space for typography"},
+  Monvoy:{t:"Luxury in motion",a:"The moment between destinations. She is not trying to be seen — she is arriving. Those who know, know.",s:"Mediterranean organic house, warm bass, elegant female vocals, guitar accents, cinematic atmosphere, 118-122 BPM",p:"Mediterranean blue, deep navy, ivory, honey tan, soft gold, stone",model:"Mediterranean woman, 20-26, exceptionally beautiful, Monica Bellucci or Eiza Gonzalez register — flawless complexion, striking eyes, natural rather than posed",expr:"Natural confidence, mid-arrival — going somewhere, not posing. Not trying to be seen.",light:"Mediterranean golden hour, warm and cinematic, late afternoon light, soft long shadows",bg:"Mediterranean blue or deep navy with ivory and honey tones, suggest arrival — harbour light, warm stone, departure — space for elegant typography"}
 };
 
-const SN={"Chanel":"Chanel Boutique Sessions","Prada":"Prada After Hours","Hermes":"Hermes Salon","Dior":"Dior Runway Lounge","Armani":"Armani Lounge","Saint Laurent":"Saint Laurent Nights","Louis Vuitton":"Louis Vuitton Voyages","Gucci":"Gucci Milano Sessions","Balenciaga":"Balenciaga Future Sessions","Bottega Veneta":"Bottega Veneta Quiet Hours","Burberry":"Burberry Heritage Sessions","Monvoy":"Monvoy Valletta Sessions"};
+const SN={Chanel:"Chanel Boutique Sessions",Prada:"Prada After Hours",Hermes:"Hermes Salon",Dior:"Dior Runway Lounge",Armani:"Armani Lounge","Saint Laurent":"Saint Laurent Nights","Louis Vuitton":"Louis Vuitton Voyages",Gucci:"Gucci Milano Sessions",Balenciaga:"Balenciaga Future Sessions","Bottega Veneta":"Bottega Veneta Quiet Hours",Burberry:"Burberry Heritage Sessions",Monvoy:"Monvoy Valletta Sessions"};
 
-const LOCATIONS={"Chanel":["Paris, Avenue Montaigne, early morning before the city wakes","Paris, Saint-Germain-des-Prés, golden afternoon light through café windows","Paris, Palais Royal gardens, overcast October, fallen leaves","Paris, Le Marais, blue hour, soft rain on cobblestones","Côte d'Azur, private terrace, late June afternoon","Paris, Rue du Faubourg Saint-Honoré, crisp autumn morning","Deauville, seafront promenade, September, sea mist","Paris, rooftop with Eiffel Tower distant, champagne hour","Monaco, harbour view, soft spring evening","Paris, Tuileries garden, Sunday afternoon, winter light"],"Prada":["Milan, Galleria Vittorio Emanuele II, early morning, empty","Milan, Brera district, overcast November, architectural shadows","Milan, Fondazione Prada, late afternoon, industrial light","Venice, Dorsoduro, winter morning, mist on the canal","Milan, fashion week, backstage before the show","Rome, Parioli district, cool autumn afternoon","Milan, brutalist architecture, blue hour","Florence, Oltrarno, dusk, amber lamplight","Milan, rooftop terrace, grey sky, January","Turin, modernist interior, overcast, clean shadows"],"Hermes":["Paris, 24 Faubourg Saint-Honoré, midday, quiet","Normandy countryside, horse paddock, golden September morning","Paris, Bois de Boulogne, early autumn ride","Loire Valley, chateau grounds, late afternoon harvest light","Camargue, white horses, dawn mist","Deauville, polo grounds, summer afternoon","Paris, private courtyard, midday September sun","Sologne forests, October morning, dew on grass","Île de Ré, white walls and blue shutters, August","Burgundy vineyard, October, harvest light"],"Dior":["Paris, couture atelier, final fitting, morning light","Paris, Jardin des Tuileries, fashion week September","Versailles gardens, late afternoon golden hour","Paris, Palais Royal, grey February morning","Cannes, Croisette terrace, film festival evening","Paris, Pont Alexandre III, blue hour","Normandy, grey Atlantic sky","Paris, Place Vendôme, early morning, empty square","Château de la Marquise, autumn afternoon","Paris, ballet rehearsal room, winter morning light"],"Armani":["Milan, luxury hotel lobby, Sunday morning, quiet","Lake Como, villa terrace, evening aperitivo","Venice, Cipriani terrace, golden afternoon","Portofino, harbour restaurant, late lunch","Capri, clifftop terrace, warm September evening","Milan, Navigli, early evening, soft light on the canal","Rome, rooftop terrace, July dusk","Sardinia, private cove, afternoon siesta light","Florence, Oltrarno, Sunday morning, sunlight through shutters","Bologna, colonnaded street, November afternoon"],"Saint Laurent":["Paris, Le Palace, night, 1970s ghost","Paris, Saint-Germain, brasserie late night","Marrakech, riad courtyard, midnight","Paris, Pigalle, neon blue hour","Los Angeles, Chateau Marmont terrace, 2am","Paris, after the show, backstage shadows","Ibiza, hilltop villa, midnight June","Paris, Left Bank, last cigarette before dawn","New York, SoHo loft, midnight shoot","Tokyo, Roppongi, neon rain, 3am"],"Louis Vuitton":["Heathrow Terminal 5, first class lounge, early morning","Orient Express, crossing the Alps, dawn","Hong Kong, The Peninsula, harbour view, dusk","Tokyo, Ando-designed space, morning light","Paris CDG, departure hall, golden hour","Dubai, first class lounge, connecting flight","New York, JFK Terminal 4, late evening","Singapore Airlines suite, above the clouds","Venice, water taxi arriving at the Cipriani","Marrakech, La Mamounia terrace, sunset"],"Gucci":["Florence, Via Tornabuoni, Saturday afternoon","Rome, Via Condotti, golden October morning","Milan, Palazzo Reale surroundings, fashion week","Capri, La Fontelina, August afternoon","Positano, rooftop terrace, July evening","Florence, Boboli Gardens, late afternoon","Rome, rooftop pool, golden hour July","Sardinia, Porto Cervo, yacht club evening","Capri, funicular view, morning haze","Tuscany, vineyard estate, harvest celebration"],"Balenciaga":["Paris, Palais de Tokyo, post-opening, 1am","Tokyo, Shibuya crossing, 4am, neon and rain","New York, meatpacking district, grey February dawn","London, Barbican Centre, overcast Sunday","Berlin, brutalist housing block, blue hour","Paris, périphérique, night drive","Los Angeles, concrete riverbed, midday glare","Seoul, Gangnam rooftop, golden hour","Paris, 10th arrondissement, grey morning","Tokyo, Odaiba, midnight, city lights reflected"],"Bottega Veneta":["Venice, private palazzo, early morning, mist","Tuscany, hilltop farmhouse, October olive harvest","Venice, Campo Santa Margherita, Sunday morning","Lake Como, Villa del Balbianello, late afternoon","Umbria, stone villa, harvest dinner preparation","Venice, lagoon crossing, dawn mist","Siena, Piazza del Campo, February, empty","Florence, private garden, September afternoon","Veneto countryside, November, bare vines","Venice, Dorsoduro, winter Sunday, quiet calle"],"Burberry":["London, Mayfair, early morning, light rain","Scottish Highlands, loch shore, overcast October","Cotswolds, country house hotel, Sunday morning","London, St James's, November afternoon, fallen leaves","Yorkshire moors, autumn dawn, mist","Edinburgh, New Town, blue hour, wet cobbles","London, Chelsea, Sunday morning after rain","Lake District, hilltop, October wind","Cornwall, cliff path, winter Atlantic light","London, Paddington station, first class departure, early morning"],"Monvoy":["Valletta, Grand Harbour view, late afternoon September","Portofino, harbour steps, golden hour August","Monaco, Casino square, early evening June","Lake Como, Villa Carlotta gardens, October morning","Capri, Faraglioni rocks view, warm afternoon","Nice, Promenade des Anglais, blue hour October","St Moritz, frozen lake, winter morning clarity","Valletta, limestone streets, dawn before the city wakes","Portofino, yacht deck, pre-dinner light","Positano, terrace above the sea, July sunset","Valletta, Barrakka Gardens, early morning","Amalfi, clifftop path, late afternoon light","Mdina, Silent City, dusk, warm stone","Gozo, late afternoon, still"]};
+const LOCS={Chanel:["Paris, Avenue Montaigne, early morning","Paris, Saint-Germain, golden afternoon light","Paris, Palais Royal, overcast October","Côte d'Azur, private terrace, late June","Deauville, seafront, September mist","Monaco, harbour view, soft spring evening"],Prada:["Milan, Galleria Vittorio Emanuele, early morning","Milan, Brera district, overcast November","Milan, Fondazione Prada, late afternoon","Venice, Dorsoduro, winter morning mist","Milan, fashion week backstage"],Hermes:["Paris, 24 Faubourg Saint-Honoré, midday","Normandy, horse paddock, golden September","Loire Valley, chateau grounds, harvest light","Camargue, white horses, dawn mist","Île de Ré, white walls, August"],Dior:["Paris, couture atelier, morning light","Versailles gardens, late afternoon golden hour","Cannes, Croisette terrace, film festival evening","Paris, Place Vendôme, early morning"],Armani:["Milan, luxury hotel lobby, Sunday morning","Lake Como, villa terrace, evening aperitivo","Portofino, harbour restaurant, late lunch","Capri, clifftop terrace, warm September"],"Saint Laurent":["Paris, Le Palace, night","Paris, Saint-Germain, brasserie late night","Marrakech, riad courtyard, midnight","Los Angeles, Chateau Marmont, 2am"],"Louis Vuitton":["Heathrow Terminal 5, first class lounge","Orient Express, crossing the Alps, dawn","Hong Kong, The Peninsula, harbour dusk","Paris CDG, departure hall, golden hour"],Gucci:["Florence, Via Tornabuoni, Saturday afternoon","Rome, Via Condotti, golden October","Capri, La Fontelina, August afternoon","Tuscany, vineyard estate, harvest"],Balenciaga:["Paris, Palais de Tokyo, 1am","Tokyo, Shibuya crossing, 4am, neon rain","Berlin, brutalist housing block, blue hour","Seoul, Gangnam rooftop, golden hour"],"Bottega Veneta":["Venice, private palazzo, early morning mist","Tuscany, hilltop farmhouse, olive harvest","Lake Como, Villa del Balbianello, late afternoon","Siena, Piazza del Campo, February, empty"],Burberry:["London, Mayfair, early morning light rain","Scottish Highlands, loch shore, October","Cotswolds, country house hotel, Sunday","Yorkshire moors, autumn dawn mist"],Monvoy:["Valletta, Grand Harbour, late afternoon September","Portofino, harbour steps, golden hour August","Monaco, Casino square, early evening June","Lake Como, Villa Carlotta, October morning","Capri, Faraglioni view, warm afternoon","Nice, Promenade des Anglais, blue hour","St Moritz, frozen lake, winter clarity","Valletta, limestone streets, dawn","Positano, terrace above the sea, July sunset","Mdina, Silent City, dusk, warm stone"]};
 
-const STYLING={"Chanel":{g:["classic tweed jacket, ivory lining","black and white tweed suit, braid trim","cream silk blouse, subtle drape","soft pink cashmere twinset","ivory structured blazer, gilt buttons"],a:["double strand of pearls","gold chain belt","quilted chain bag, small","camellia corsage"],s:["structured shoulder, nipped waist","relaxed blazer, straight leg","collarless jacket, slim skirt"]},"Prada":{g:["minimal black turtleneck, architectural cut","burgundy shift dress, precise seaming","white shirt, oversized, tucked","black tailored trouser, wide leg"],a:["small structured bag, geometric","minimal black loafer","architectural belt, minimal buckle"],s:["oversized top, straight trouser","minimal shift, below knee","architectural column dress"]},"Hermes":["fine cashmere turtleneck, cognac","silk blouse, classic print, tucked","equestrian-cut jacket, cream lining","soft leather belt, gold H buckle","camel coat, relaxed drape","silk scarf worn at neck"],"Dior":["new look silhouette, soft grey","ivory silk charmeuse gown, bias cut","structured jacket with cinched waist","grey wool midi skirt, soft pleat","white poplin blouse, romantic sleeve","silver evening column, minimal"],"Armani":["fluid silk trouser, ivory","relaxed blazer, greige linen","deconstructed suit, charcoal wool","navy jersey dress, minimal cut","cashmere overcoat, camel","greige wide-leg trouser"],"Saint Laurent":{g:["black tuxedo jacket, nothing underneath","black leather blazer, rock heritage","sheer black blouse, minimal","black power suit, sharp shoulder","gold lamé evening shirt","black velvet jacket, gold buttons"],a:["gold chain, long","black patent pump, stiletto","minimal gold ring, single","oversized black sunglasses"],s:["sharp shoulder, slim leg","oversized blazer, nothing else","column silhouette, floor length"]},"Louis Vuitton":["tailored camel overcoat, travel-ready","cream cashmere turtleneck, travel ease","brown leather trouser, luxury","camel blazer, relaxed","ivory silk blouse, easy elegance","cognac leather belt, gold clasp"],"Gucci":{g:["emerald green silk blouse, Gucci bow","deep red velvet blazer, gold buttons","GG-free silk midi dress, print","burgundy tailored suit, Italian cut","gold lamé blouse, evening"],a:["horsebit loafer","bamboo bag, small","flora print silk scarf","vintage-inspired gold jewellery"],s:["wide shoulder, draped","fitted Italian blazer, high waist","flowing midi, movement"]},"Balenciaga":["oversized black hoodie, architectural","black structured coat, extreme volume","silver technical jacket, future luxury","charcoal wide-leg trouser, dropped crotch","black column dress, minimalist extreme","electric blue crop technical top"],"Bottega Veneta":["olive intrecciato leather jacket, understated","forest green cashmere coat, minimal","chocolate brown wide-leg trouser, fluid","cream cashmere roll neck, relaxed","taupe leather dress, simple cut","stone wool coat, generous cut"],"Burberry":["heritage trench coat, classic khaki","camel tailored coat, British cut","stone cashmere scarf, generous","tartan wool blazer, restrained","navy pea coat, double-breasted","British racing green waxed jacket"],"Monvoy":{g:["ivory silk slip dress, Mediterranean ease","deep navy linen blazer, relaxed travel","honey tan cashmere wrap, soft drape","Mediterranean blue silk blouse, minimal","stone cotton wide-leg trouser, ease","ivory broderie anglaise dress, summer","soft gold silk camisole, evening arrival"],a:["minimal gold hoop, single","simple leather sandal","small gold chain, delicate","woven straw hat, arriving"],s:["relaxed and fluid, Mediterranean ease","minimal and clean, luxury in motion","soft drape, unhurried"]}};
+const STYLES={Chanel:["classic tweed jacket, ivory lining, double strand of pearls","black and white tweed suit, braid trim, camellia corsage","cream silk blouse, gold chain belt, soft A-line skirt","soft pink cashmere twinset, quilted chain bag","ivory structured blazer, gilt buttons, slim skirt"],Prada:["minimal black turtleneck, architectural cut, thin gold chain","burgundy shift dress, precise seaming, minimal black loafer","white shirt, oversized, tucked, structured bag geometric","black tailored wide-leg trouser, architectural belt"],Hermes:["fine cashmere turtleneck, cognac, soft leather belt gold H buckle","silk blouse, classic print, equestrian-cut jacket, cream lining","camel coat, relaxed drape, silk scarf at neck","riding-inspired jodhpur, cream, fine merino crew"],Dior:["new look silhouette, soft grey, cinched waist","ivory silk charmeuse gown, bias cut","structured jacket, grey wool midi skirt, soft pleat","white poplin blouse, romantic sleeve, silver column"],Armani:["fluid silk trouser, ivory, relaxed blazer","deconstructed suit, charcoal wool, silk blouse loose","navy jersey dress, minimal cut, cashmere overcoat camel","greige wide-leg trouser, navy fluid jacket"],"Saint Laurent":["black tuxedo jacket, nothing underneath, gold chain long","black leather blazer, black patent stiletto","sheer black blouse, black power suit, sharp shoulder","black velvet jacket, gold buttons, column silhouette"],"Louis Vuitton":["tailored camel overcoat, cream cashmere turtleneck","cognac leather jacket, brown leather trouser","ivory silk blouse, camel blazer, cognac leather belt","brown wide-leg trouser, fluid, travel ease"],Gucci:["emerald green silk blouse, horsebit loafer, bamboo bag","deep red velvet blazer, gold buttons, flora silk scarf","GG-free silk midi dress, wide shoulder draped","burgundy tailored suit Italian cut, vintage gold jewellery"],Balenciaga:["oversized black hoodie, architectural, silver technical jacket","charcoal wide-leg trouser, dropped crotch, black leather coat oversized","electric blue crop technical top, black column dress","silver metallic trouser wide, black structured coat extreme volume"],"Bottega Veneta":["olive intrecciato leather jacket, understated","forest green cashmere coat, chocolate wide-leg trouser fluid","cream cashmere roll neck, taupe leather dress simple","stone wool coat, generous cut, cream wide trouser"],Burberry:["heritage trench coat, classic khaki, stone cashmere scarf","camel tailored coat, British cut, tartan wool blazer restrained","navy pea coat, double-breasted, cream cable knit","British racing green waxed jacket, camel midi skirt wool"],Monvoy:["ivory silk slip dress, Mediterranean ease, minimal gold hoop","deep navy linen blazer, relaxed travel, simple leather sandal","honey tan cashmere wrap, soft drape, small gold chain","Mediterranean blue silk blouse, stone cotton wide-leg trouser","soft gold silk camisole, evening arrival, woven straw hat"]};
 
-const STUDIO_MOODS=["Fast-paced fashion editorial, morning shoot, high energy crew","Commercial beauty shoot, bright studio, focused intensity","Athletic campaign, outdoor location, adrenaline energy","Fashion week backstage, controlled chaos, adrenaline","Product launch shoot, sleek studio, precise and driven","Swimwear editorial, outdoor location, summer energy","Urban fashion shoot, rooftop, afternoon golden energy","Magazine cover shoot, studio, polished high-energy precision","Jewellery campaign, macro studio, intense focused energy","Fragrance campaign, atmospheric studio, sensual drive"];
-
-let currentChannel='inshop';
-let outputs={};
+const SMOOD=["Fast-paced fashion editorial, morning, high energy crew","Commercial beauty shoot, bright studio, focused intensity","Fashion week backstage, controlled chaos, adrenaline","Product launch, sleek studio, precise and driven","Magazine cover shoot, polished high-energy precision","Jewellery campaign, macro studio, intense focus"];
 
 window.onload=()=>{
-  const k=localStorage.getItem('ism_api_key');
-  if(k){document.getElementById('api-key').value=k;setStatus(true,'Key saved');}
+  const k=localStorage.getItem('ca_key');
+  if(k){document.getElementById('kval').value=k;document.getElementById('kstat').textContent='Key saved ✓';document.getElementById('kstat').style.color='#7AAA7A';}
 };
 
 function saveKey(){
-  const k=document.getElementById('api-key').value.trim();
+  const k=document.getElementById('kval').value.trim();
   if(!k)return;
-  localStorage.setItem('ism_api_key',k);
-  setStatus(true,'Key saved ✓');
+  localStorage.setItem('ca_key',k);
+  document.getElementById('kstat').textContent='Saved ✓';
+  document.getElementById('kstat').style.color='#7AAA7A';
 }
 
-function setStatus(ok,msg){
-  document.getElementById('status-dot').className='status-dot'+(ok?' ok':'');
-  document.getElementById('status-text').textContent=msg;
-}
-
-function swCh(ch){
-  currentChannel=ch;
-  document.getElementById('bi').classList.toggle('active',ch==='inshop');
-  document.getElementById('bs').classList.toggle('active',ch==='studio');
-  document.getElementById('inshop-form').style.display=ch==='inshop'?'block':'none';
-  document.getElementById('studio-form').style.display=ch==='studio'?'block':'none';
-  const ot=document.getElementById('otype');
-  ot.innerHTML=ch==='inshop'
-    ?'<option value="full">Full content package</option><option value="production">Production only</option><option value="social">Social copy only</option><option value="outreach">Outreach brief only</option>'
-    :'<option value="full">Full content package</option><option value="production">Production only</option><option value="social">Social copy only</option>';
-  document.getElementById('main').innerHTML='<div class="placeholder"><svg class="placeholder-mark" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><text x="4" y="62" font-family="Cormorant Garamond, serif" font-size="64" font-weight="300" fill="#B8974A" letter-spacing="-4">MV</text></svg><div class="placeholder-text">Select a session to begin</div></div>';
+function onChannel(){
+  const ch=document.getElementById('channel').value;
+  document.getElementById('inshop-fields').style.display=ch==='inshop'?'block':'none';
+  document.getElementById('studio-fields').style.display=ch==='studio'?'block':'none';
 }
 
 function onBrand(){
   const b=document.getElementById('brand').value;
-  const p=PROFILES[b];
-  document.getElementById('territory').textContent=p?p.t:'';
+  document.getElementById('territory').textContent=b&&P[b]?P[b].t:'';
   if(b&&SN[b])document.getElementById('sname').value=SN[b];
 }
 
-function randomLocation(){
+function randLoc(){
   const b=document.getElementById('brand').value;
   if(!b){alert('Select a brand first.');return;}
-  const locs=LOCATIONS[b]||LOCATIONS['Monvoy'];
-  document.getElementById('loc').value=locs[Math.floor(Math.random()*locs.length)];
+  const a=LOCS[b]||LOCS.Monvoy;
+  document.getElementById('loc').value=a[Math.floor(Math.random()*a.length)];
 }
 
-function randomStyling(){
+function randStyle(){
   const b=document.getElementById('brand').value;
   if(!b){alert('Select a brand first.');return;}
-  const s=STYLING[b];
-  if(!s){document.getElementById('styling').value='brand signature styling';return;}
-  let result='';
-  if(Array.isArray(s)){result=s[Math.floor(Math.random()*s.length)];}
-  else{
-    const g=s.g?s.g[Math.floor(Math.random()*s.g.length)]:'';
-    const a=s.a?s.a[Math.floor(Math.random()*s.a.length)]:'';
-    const sl=s.s?s.s[Math.floor(Math.random()*s.s.length)]:'';
-    result=[g,a,sl].filter(Boolean).join(', ');
-  }
-  document.getElementById('styling').value=result;
+  const a=STYLES[b]||STYLES.Monvoy;
+  document.getElementById('styling').value=a[Math.floor(Math.random()*a.length)];
 }
 
-function randomStudioMood(){
-  document.getElementById('smood').value=STUDIO_MOODS[Math.floor(Math.random()*STUDIO_MOODS.length)];
+function randMood(){
+  document.getElementById('smood').value=SMOOD[Math.floor(Math.random()*SMOOD.length)];
 }
 
-async function callAPI(key,system,user,msgEl){
-  console.log('callAPI - user prompt start:', user.substring(0,50));
-  if(msgEl)msgEl.textContent=user.split(',')[0]+'...';
+function setLoading(msg){
+  document.getElementById('main').innerHTML=`<div class="loading"><div class="lbar"></div><div class="lmsg">${msg}</div></div>`;
+}
+
+function setError(msg){
+  document.getElementById('main').innerHTML=`<div style="padding:32px 40px"><div class="err"><strong>Error:</strong> ${msg}</div></div>`;
+}
+
+async function callAPI(system,user){
+  const key=localStorage.getItem('ca_key')||document.getElementById('kval').value.trim();
+  if(!key)throw new Error('No API key. Please enter and save your Anthropic key.');
   const resp=await fetch('/.netlify/functions/generate',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,system,messages:[{role:'user',content:user}]})
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,system,messages:[{role:'user',content:user}]})
   });
   const data=await resp.json();
-  console.log('API response status:', resp.status, 'ok:', resp.ok);
-  if(!resp.ok){console.error('API error data:', data);throw new Error(data.error?.message||`API error ${resp.status}`);}
+  if(!resp.ok)throw new Error(data.error||`HTTP ${resp.status}`);
   const raw=data.content.map(i=>i.text||'').join('');
-  console.log('Raw response length:', raw.length, 'first 100:', raw.substring(0,100));
   const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
-  if(s===-1||e===-1)throw new Error('No JSON returned');
+  if(s===-1||e===-1)throw new Error('Response was not valid JSON. Raw: '+raw.substring(0,200));
   return JSON.parse(raw.slice(s,e+1));
 }
 
 async function generate(){
-  const activeChannel=currentChannel;
-  console.log('GENERATE CALLED - activeChannel:', activeChannel);
-  const key=localStorage.getItem('ism_api_key')||document.getElementById('api-key').value.trim();
-  if(!key){alert('Please enter and save your Anthropic API key first.');return;}
-
-  const outputType=document.getElementById('otype').value;
-  const dur=parseInt(document.getElementById('duration').value)||2;
-  let brand,sessionName,loc,styling;
-
-  if(activeChannel==='inshop'){
-    brand=document.getElementById('brand').value;
-    sessionName=document.getElementById('sname').value.trim();
-    loc=document.getElementById('loc').value.trim();
-    styling=document.getElementById('styling').value.trim();
-    console.log('INSHOP - brand:', brand, 'session:', sessionName);
-    if(!brand||!sessionName){alert('Please select a brand and enter a session name.');return;}
-  } else {
-    sessionName=document.getElementById('ssname').value.trim();
-    loc=document.getElementById('smood').value.trim();
-    console.log('STUDIO - session:', sessionName);
-    if(!sessionName){alert('Please enter a session name.');return;}
-  }
-
-  const btn=document.getElementById('gen-btn');
+  const ch=document.getElementById('channel').value;
+  const dur=document.getElementById('duration').value;
+  const btn=document.getElementById('gbtn');
   btn.disabled=true;btn.textContent='Generating...';
 
-  const msgEl=document.createElement('div');
-  msgEl.className='loading-msg';
-  document.getElementById('main').innerHTML='';
-  const loadDiv=document.createElement('div');
-  loadDiv.className='loading';
-  loadDiv.innerHTML='<div class="loading-bar"></div>';
-  loadDiv.appendChild(msgEl);
-  document.getElementById('main').appendChild(loadDiv);
-
   try{
-    outputs={};
-    const p=PROFILES[brand]||{};
+    if(ch==='inshop'){
+      const brand=document.getElementById('brand').value;
+      if(!brand){alert('Please select a brand.');btn.disabled=false;btn.textContent='Generate';return;}
+      const session=document.getElementById('sname').value.trim()||SN[brand];
+      const loc=document.getElementById('loc').value.trim()||'brand signature atmosphere';
+      const styling=document.getElementById('styling').value.trim()||'brand-appropriate styling';
+      const p=P[brand];
 
-    if(activeChannel==='inshop'){
-      const ctx=`BRAND: ${brand}\nTerritory: ${p.t}\nAtmosphere: ${p.a}\nMusic: ${p.s}\nPalette: ${p.p}\nCaption voice: ${p.cv}\nModel: ${p.model}\nExpression: ${p.expression}\nLighting: ${p.lighting}\nBackground: ${p.background}\nStyling: ${styling||'brand-appropriate'}\nLocation: ${loc||'brand signature atmosphere'}\nDuration: ${dur} hours`;
+      setLoading('Generating thumbnail prompt and art direction...');
 
-      const needsProd=outputType==='full'||outputType==='production';
-      const needsSocial=outputType==='full'||outputType==='social';
-      const needsOutreach=outputType==='full'||outputType==='outreach';
+      const system=`You are the creative director for InShopMusic, a luxury ambient music channel. You think and write like a senior creative director at a top luxury agency.
 
-      if(needsProd){
-        console.log('PROD CALL starting for brand:', brand);
-        msgEl.textContent='Generating image prompts and art direction...';
-        let r={};
-        try{ r=await callAPI(key,
-          `You are the creative director for InShopMusic, a luxury ambient music channel.\n\n${ctx}\n\nReturn ONLY valid JSON, single line strings, no markdown fences:\n{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":""}\n\nimage_prompt_thumbnail: Detailed Midjourney prompt. Model as described wearing provided styling. Expression, lighting and background per art direction. Large space at top for brand name typography in ${p.p} palette. Ultra realistic 8K magazine cover.\nimage_prompt_video: Same scene slightly wider, no typography space, clean for ${dur}hr viewing. Ultra realistic 8K.\nart_direction: Labelled lines — Model | Styling | Expression | Lighting | Background | Palette\nsuno_prompt: Detailed music prompt, BPM, instruments, atmosphere, ${dur}hrs, no jarring transitions.\ntrack_structure: Creative direction for ${dur===1?3:dur===3?6:5} phases (${dur===1?'Intro/Main/Close':dur===3?'Intro/Build/Main/Sustained/Intimate/Close':'Intro/Build/Main/Intimate/Close'}). Emotional feeling of each phase.`,
-          `Brand:${brand} Session:${sessionName} Location:${loc||'brand'} Styling:${styling||'brand'} Duration:${dur}h`,msgEl);
-        }catch(e2){console.error('PROD CALL FAILED:',e2);r={image_prompt_thumbnail:'PROD ERROR: '+e2.message,image_prompt_video:'error',art_direction:'error',suno_prompt:'error',track_structure:'error'};}
-        console.log('PROD result keys:', Object.keys(r));
-        Object.assign(outputs,r);
-      }
+BRAND: ${brand}
+Territory: ${p.t}
+Atmosphere: ${p.a}
+Music style: ${p.s}
+Colour palette: ${p.p}
+Model: ${p.model}
+Expression: ${p.expr}
+Lighting: ${p.light}
+Background: ${p.bg}
+Styling: ${styling}
+Location: ${loc}
+Duration: ${dur} hours
 
-      if(needsSocial){
-        msgEl.textContent='Generating social content...';
-        const r=await callAPI(key,
-          `You are the creative director for InShopMusic, a luxury ambient music channel. NOT associated with Monvoy.\n\n${ctx}\n\nReturn ONLY valid JSON, single line strings, no markdown fences:\n{"youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["","",""],"tiktok_scripts":["",""],"pinterest_pins":["","","","",""]}\n\nyoutube_title: BRAND NAME in caps | keywords | year. Example: HERMES Boutique Music 2026 | Luxury Shopping Ambience | Elegant House Mix\nyoutube_description: 4-5 sentences atmospheric opening then use cases then subscribe.\ninstagram_captions: 3 variants in this voice: ${p.cv}. No hashtags, no emoji, max 2 sentences. Benchmark: "Timeless elegance never needs to raise its voice."\nspotify_description: 2-3 sentences atmospheric passive listening.\ntiktok_scripts: 2 scripts 30-45 seconds scene-setting atmospheric.\npinterest_pins: 5 luxury lifestyle pin descriptions.`,
-          `Brand:${brand} Session:${sessionName} Location:${loc||'brand'}`,msgEl);
-        Object.assign(outputs,r);
-      }
+Return ONLY a valid JSON object. No markdown. No backticks. No explanation. Just the raw JSON:
+{"thumbnail_prompt":"","video_prompt":"","art_direction":"","music_prompt":""}
 
-      if(needsOutreach){
-        msgEl.textContent='Generating outreach brief...';
-        const r=await callAPI(key,
-          `You are writing for Monvoy, a British-German luxury leather goods brand. Key organisers, glasses cases, luggage tags. Luxury in motion. Carrying with intention. Mediterranean lifestyle. Those who know, know.\n\nReturn ONLY valid JSON, single line strings, no markdown:\n{"outreach_brief":""}\n\noutreach_brief: Warm 150-200 word message to an established ambient YouTube channel proposing they produce a Monvoy-branded atmospheric clip in their own style. Full credit throughout. Fee open. One creative to another.`,
-          `Channel style: ${brand}-adjacent luxury ambient. Context: ${sessionName}`,msgEl);
-        Object.assign(outputs,r);
-      }
+thumbnail_prompt: A detailed Midjourney image generation prompt. Include the exact model description, wearing the provided styling, with the specified expression, in the specified lighting, against the specified background. Must include: ultra realistic, 8K, magazine cover composition, large empty space at top for ${brand.toUpperCase()} brand name typography in ${p.p} palette tones.
+video_prompt: Same image but slightly wider crop, no typography space needed, clean composition for looping ${dur}-hour video background. Ultra realistic 8K.
+art_direction: A clean reference sheet with labelled lines. Format exactly as: MODEL: [description] | STYLING: [description] | EXPRESSION: [description] | LIGHTING: [description] | BACKGROUND: [description] | PALETTE: [description]
+music_prompt: A detailed Suno/Udio music generation prompt. Include specific BPM from the music style, instruments, atmosphere, emotional quality. Specify ${dur} hours duration, no jarring transitions, designed for the ${loc} atmosphere.`;
+
+      const result=await callAPI(system,`Brand: ${brand}, Session: ${session}, Location: ${loc}, Styling: ${styling}, Duration: ${dur} hours`);
+
+      showResults(brand,session,result);
 
     } else {
-      const needsProd=outputType==='full'||outputType==='production';
-      const needsSocial=outputType==='full'||outputType==='social';
+      const session=document.getElementById('ssname').value.trim();
+      if(!session){alert('Please enter a session name.');btn.disabled=false;btn.textContent='Generate';return;}
+      const mood=document.getElementById('smood').value.trim()||'high energy editorial shoot';
 
-      if(needsProd){
-        msgEl.textContent='Generating image prompts and music brief...';
-        const r=await callAPI(key,
-          `You are the creative director for Studio Shoot Music, ambient music for photo shoots and film sets. Always energetic 124-130 BPM forward momentum never slow. ${dur} hours.\n\nReturn ONLY valid JSON, single line strings, no markdown:\n{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":""}\n\nimage_prompt_thumbnail: Professional shoot environment, crew at work, natural energy, Monvoy leather piece on surface naturally, large typography space, ultra realistic 8K.\nimage_prompt_video: Same wider no typography space holds ${dur}hrs. Ultra realistic 8K.\nart_direction: Labelled — Environment | Lighting | Mood | Props | Palette\nsuno_prompt: Energetic 124-130 BPM no slow sections ${dur}hrs continuous.\ntrack_structure: ${dur===1?3:dur===3?6:5} phases keeping energy high throughout.`,
-          `Session:${sessionName} Mood:${loc||'high energy editorial'} Duration:${dur}h`,msgEl);
-        Object.assign(outputs,r);
-      }
+      setLoading('Generating Studio Shoot Music prompts...');
 
-      if(needsSocial){
-        msgEl.textContent='Generating social content...';
-        const r=await callAPI(key,
-          `You are the creative director for Studio Shoot Music, ambient music for photo shoots. Write like a working photographer — direct professional atmospheric. Monvoy appears naturally never promoted.\n\nReturn ONLY valid JSON, single line strings, no markdown:\n{"youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["",""],"tiktok_scripts":[""]}\n\nyoutube_title: Professional searchable shoot context year.\nyoutube_description: Functional atmospheric use cases energetic long sets no jarring transitions.\ninstagram_captions: 2 working photographer voice direct professional.\nspotify_description: 2 sentences functional atmospheric.\ntiktok_scripts: 1 studio environment 30 seconds.`,
-          `Session:${sessionName} Mood:${loc||'high energy editorial'}`,msgEl);
-        Object.assign(outputs,r);
-      }
+      const system=`You are the creative director for Studio Shoot Music, ambient music for photo shoots and film sets. Always energetic, 124-130 BPM, forward momentum, never slow.
+
+Session: ${session}
+Mood: ${mood}
+Duration: ${dur} hours
+
+Return ONLY a valid JSON object. No markdown. No backticks. No explanation. Just the raw JSON:
+{"thumbnail_prompt":"","video_prompt":"","art_direction":"","music_prompt":""}
+
+thumbnail_prompt: Midjourney prompt for a professional photo shoot environment. Crew at work, natural energy, clean aesthetic, natural light. A Monvoy leather key organiser or glasses case visible naturally on a surface. Large typography space at top. Ultra realistic 8K.
+video_prompt: Same environment, slightly wider, no typography space, holds for ${dur} hours viewing. Ultra realistic 8K.
+art_direction: MODEL: [crew/photographer at work] | ENVIRONMENT: [studio description] | LIGHTING: [lighting description] | PROPS: [Monvoy piece, equipment] | MOOD: [energy level] | PALETTE: [colour palette]
+music_prompt: Suno/Udio prompt for energetic creative professional ambient music. 124-130 BPM. Forward momentum throughout. No slow sections or drops. ${dur} hours continuous. Designed for ${mood}.`;
+
+      const result=await callAPI(system,`Session: ${session}, Mood: ${mood}, Duration: ${dur} hours`);
+      showResults('Studio Shoot Music',session,result);
     }
 
-    renderOutput(outputType,brand||sessionName,sessionName);
-
   }catch(err){
-    document.getElementById('main').innerHTML=`<div class="error-card"><strong>Error:</strong> ${err.message}<br><br>Check your API key at console.anthropic.com</div>`;
+    setError(err.message);
   }
   btn.disabled=false;btn.textContent='Generate';
 }
 
-const TABS=[
-  {key:'youtube_title',label:'YT Title',show:['full','social']},
-  {key:'youtube_description',label:'YT Description',show:['full','social']},
-  {key:'youtube_tags',label:'YT Tags',show:['full','social']},
-  {key:'spotify_description',label:'Spotify',show:['full','social']},
-  {key:'instagram_captions',label:'Instagram',show:['full','social'],arr:true},
-  {key:'tiktok_scripts',label:'TikTok',show:['full','social'],arr:true},
-  {key:'pinterest_pins',label:'Pinterest',show:['full','social'],arr:true},
-  {key:'suno_prompt',label:'Music Prompt',show:['full','production']},
-  {key:'image_prompt_thumbnail',label:'Thumbnail Prompt',show:['full','production']},
-  {key:'image_prompt_video',label:'Video Prompt',show:['full','production']},
-  {key:'art_direction',label:'Art Direction',show:['full','production']},
-  {key:'track_structure',label:'Track Structure',show:['full','production']},
-  {key:'outreach_brief',label:'Outreach Brief',show:['full','outreach']}
-];
+function showResults(brand,session,r){
+  const blocks=[
+    {key:'thumbnail_prompt',label:'Thumbnail Image Prompt'},
+    {key:'video_prompt',label:'Video Background Prompt'},
+    {key:'art_direction',label:'Art Direction'},
+    {key:'music_prompt',label:'Music Prompt'}
+  ];
 
-function renderOutput(outputType,brand,sessionName){
-  const avail=TABS.filter(d=>{
-    if(outputType!=='full'&&!d.show.includes(outputType))return false;
-    const v=outputs[d.key];
-    if(!v)return false;
-    return Array.isArray(v)?v.some(x=>x&&x.trim()):v.toString().trim().length>0;
+  let html=`<div class="out-header"><div class="out-title">${esc(session)}</div><div class="out-sub">${esc(brand)} · Image & Music Package</div></div>`;
+
+  blocks.forEach(b=>{
+    const val=r[b.key]||'';
+    if(!val.trim())return;
+    html+=`<div class="out-block">
+      <div class="out-label">${b.label}</div>
+      <div class="out-card">
+        <div class="out-text">${esc(val)}</div>
+        <button class="copy-btn" onclick="cp(${JSON.stringify(val)},this)">Copy</button>
+      </div>
+    </div>`;
   });
-  if(!avail.length){document.getElementById('main').innerHTML='<div class="error-card">No content returned. Please try again.</div>';return;}
-  const first=avail[0].key;
-  const tabHtml=avail.map(d=>`<button class="tab${d.key===first?' active':''}" data-key="${d.key}" onclick="showTab('${d.key}')">${d.label}</button>`).join('');
-  document.getElementById('main').innerHTML=`<div class="output-header"><div class="output-title">${esc(sessionName)}</div><div class="output-subtitle">${esc(brand||'Studio Shoot Music')} · Content Package</div></div><div class="tabs">${tabHtml}</div><div id="tab-content"></div>`;
-  showTab(first);
-}
 
-function showTab(key){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.key===key));
-  const def=TABS.find(d=>d.key===key);
-  const value=outputs[key];
-  let html='';
-  if(def&&def.arr&&Array.isArray(value)){
-    value.forEach((item,i)=>{
-      if(!item||!item.trim())return;
-      html+=`<div class="output-block"><div class="out-label">${def.label} ${i+1}</div><div class="out-card"><div class="out-text">${esc(item)}</div><button class="copy-btn" onclick="cp(${JSON.stringify(item)},this)">Copy</button></div></div>`;
-    });
-  } else {
-    const text=Array.isArray(value)?value.join('\n\n'):(value||'');
-    html=`<div class="output-block"><div class="out-label">${def?def.label:key}</div><div class="out-card"><div class="out-text">${esc(text)}</div><button class="copy-btn" onclick="cp(${JSON.stringify(text)},this)">Copy</button></div></div>`;
-  }
-  document.getElementById('tab-content').innerHTML=html||'<div class="error-card">Nothing to show.</div>';
+  document.getElementById('main').innerHTML=`<div style="padding:32px 40px">${html}</div>`;
 }
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function cp(text,btn){navigator.clipboard.writeText(text).then(()=>{const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1500);});}
+function cp(t,btn){navigator.clipboard.writeText(t).then(()=>{const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1500);});}
 </script>
 </body>
 </html>
