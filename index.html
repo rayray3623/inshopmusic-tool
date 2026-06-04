@@ -245,6 +245,7 @@ function randomStudioMood(){
 }
 
 async function callAPI(key,system,user,msgEl){
+  console.log('callAPI - user prompt start:', user.substring(0,50));
   if(msgEl)msgEl.textContent=user.split(',')[0]+'...';
   const resp=await fetch('/.netlify/functions/generate',{
     method:'POST',
@@ -252,8 +253,10 @@ async function callAPI(key,system,user,msgEl){
     body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,system,messages:[{role:'user',content:user}]})
   });
   const data=await resp.json();
-  if(!resp.ok)throw new Error(data.error?.message||`API error ${resp.status}`);
+  console.log('API response status:', resp.status, 'ok:', resp.ok);
+  if(!resp.ok){console.error('API error data:', data);throw new Error(data.error?.message||`API error ${resp.status}`);}
   const raw=data.content.map(i=>i.text||'').join('');
+  console.log('Raw response length:', raw.length, 'first 100:', raw.substring(0,100));
   const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
   if(s===-1||e===-1)throw new Error('No JSON returned');
   return JSON.parse(raw.slice(s,e+1));
@@ -261,6 +264,7 @@ async function callAPI(key,system,user,msgEl){
 
 async function generate(){
   const activeChannel=currentChannel;
+  console.log('GENERATE CALLED - activeChannel:', activeChannel);
   const key=localStorage.getItem('ism_api_key')||document.getElementById('api-key').value.trim();
   if(!key){alert('Please enter and save your Anthropic API key first.');return;}
 
@@ -273,10 +277,12 @@ async function generate(){
     sessionName=document.getElementById('sname').value.trim();
     loc=document.getElementById('loc').value.trim();
     styling=document.getElementById('styling').value.trim();
+    console.log('INSHOP - brand:', brand, 'session:', sessionName);
     if(!brand||!sessionName){alert('Please select a brand and enter a session name.');return;}
   } else {
     sessionName=document.getElementById('ssname').value.trim();
     loc=document.getElementById('smood').value.trim();
+    console.log('STUDIO - session:', sessionName);
     if(!sessionName){alert('Please enter a session name.');return;}
   }
 
@@ -304,12 +310,14 @@ async function generate(){
       const needsOutreach=outputType==='full'||outputType==='outreach';
 
       if(needsProd){
+        console.log('PROD CALL starting for brand:', brand);
         msgEl.textContent='Generating image prompts and art direction...';
         let r={};
         try{ r=await callAPI(key,
           `You are the creative director for InShopMusic, a luxury ambient music channel.\n\n${ctx}\n\nReturn ONLY valid JSON, single line strings, no markdown fences:\n{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":""}\n\nimage_prompt_thumbnail: Detailed Midjourney prompt. Model as described wearing provided styling. Expression, lighting and background per art direction. Large space at top for brand name typography in ${p.p} palette. Ultra realistic 8K magazine cover.\nimage_prompt_video: Same scene slightly wider, no typography space, clean for ${dur}hr viewing. Ultra realistic 8K.\nart_direction: Labelled lines — Model | Styling | Expression | Lighting | Background | Palette\nsuno_prompt: Detailed music prompt, BPM, instruments, atmosphere, ${dur}hrs, no jarring transitions.\ntrack_structure: Creative direction for ${dur===1?3:dur===3?6:5} phases (${dur===1?'Intro/Main/Close':dur===3?'Intro/Build/Main/Sustained/Intimate/Close':'Intro/Build/Main/Intimate/Close'}). Emotional feeling of each phase.`,
           `Brand:${brand} Session:${sessionName} Location:${loc||'brand'} Styling:${styling||'brand'} Duration:${dur}h`,msgEl);
-        }catch(e2){r={image_prompt_thumbnail:'ERROR: '+e2.message,image_prompt_video:'error',art_direction:'error',suno_prompt:'error',track_structure:'error'};}
+        }catch(e2){console.error('PROD CALL FAILED:',e2);r={image_prompt_thumbnail:'PROD ERROR: '+e2.message,image_prompt_video:'error',art_direction:'error',suno_prompt:'error',track_structure:'error'};}
+        console.log('PROD result keys:', Object.keys(r));
         Object.assign(outputs,r);
       }
 
