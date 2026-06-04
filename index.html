@@ -234,7 +234,7 @@ select option { background: white; }
     <div class="section-label">Channel</div>
     <div class="ch-toggle">
       <button class="ch-btn active" id="bi" onclick="swCh('inshop')">InShopMusic</button>
-      <button class="ch-btn" id="bs" onclick="swCh('studio')">Studio Stream Vibe</button>
+      <button class="ch-btn" id="bs" onclick="swCh('studio')">Studio Shoot Music</button>
     </div>
 
     <div id="inshop-form">
@@ -411,9 +411,9 @@ Output type: ${outputType}
 Generate the complete content package. Prioritise creative quality — especially the Instagram captions and track structure. These should feel like they came from a luxury creative director, not a content generator.`;
 
   } else {
-    systemPrompt=`You are the creative director for Studio Stream Vibe, an independent ambient music channel curated specifically for photo shoots, film sets, creative studios and production environments. Long sets, no jarring transitions, nothing that competes with direction or conversation on set.
+    systemPrompt=`You are the creative director for Studio Shoot Music, an independent ambient music channel curated specifically for photo shoots, film sets, creative studios and production environments. Long sets, no jarring transitions, nothing that competes with direction or conversation on set.
 
-Studio Stream Vibe is not a lifestyle channel. It is a professional tool. Monvoy (luxury leather goods — key organisers, glasses cases, luggage tags) appears naturally as a brand that belongs in this creative environment — never promoted, simply present in the world.
+Studio Shoot Music is not a lifestyle channel. It is a professional tool. Monvoy (luxury leather goods — key organisers, glasses cases, luggage tags) appears naturally as a brand that belongs in this creative environment — never promoted, simply present in the world.
 
 Your copy should sound like it was written by someone who has spent time on set. Direct, professional, with an eye for atmosphere. Not luxury lifestyle language — working creative language.
 
@@ -431,7 +431,7 @@ Generate the full content package. The copy should sound like it was written by 
     const resp=await fetch('/.netlify/functions/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({system:systemPrompt,messages:[{role:'user',content:userPrompt}]})
+      body:JSON.stringify(currentChannel==="inshop"?{channel:"inshop",brand:brand,session:sessionName,location:contextInfo,outputType:outputType}:{channel:"studio",session:sessionName,mood:contextInfo,outputType:outputType})
     });
 
     const data=await resp.json();
@@ -460,6 +460,7 @@ const TABS=[
   {key:'pinterest_pins',label:'Pinterest',show:['full','social'],arr:true},
   {key:'suno_prompt',label:'Music Prompt',show:['full','production']},
   {key:'image_prompt',label:'Image Prompt',show:['full','production']},
+  {key:'art_direction',label:'Art Direction',show:['full','production']},
   {key:'track_structure',label:'Track Structure',show:['full','production']},
   {key:'outreach_brief',label:'Outreach Brief',show:['full','outreach']}
 ];
@@ -477,7 +478,7 @@ function renderOutput(outputType,brand,sessionName){
   document.getElementById('main').innerHTML=`
     <div class="output-header">
       <div class="output-title">${esc(sessionName)}</div>
-      <div class="output-subtitle">${esc(brand||'Studio Stream Vibe')} · Content Package</div>
+      <div class="output-subtitle">${esc(brand||'Studio Shoot Music')} · Content Package</div>
     </div>
     <div class="tabs">${tabHtml}</div>
     <div id="tab-content"></div>`;
