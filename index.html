@@ -219,9 +219,9 @@ async function callAPI(system,user){
   });
   const data=await resp.json();
   if(!resp.ok)throw new Error(data.error||`HTTP ${resp.status}`);
-  const raw=data.content.map(i=>i.text||'').join('');
+  const raw=data.content.map(i=>i.text||'').join('').replace(/```json/g,'').replace(/```/g,'').trim();
   const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
-  if(s===-1||e===-1)throw new Error('Response was not valid JSON. Raw: '+raw.substring(0,200));
+  if(s===-1||e===-1)throw new Error('No JSON found. Got: '+raw.substring(0,300));
   return JSON.parse(raw.slice(s,e+1));
 }
 
