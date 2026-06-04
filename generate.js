@@ -183,7 +183,7 @@ Background: ${p.background}
 Monvoy context (outreach brief only): British-German luxury leather goods. Key organisers, glasses cases, luggage tags. Luxury in motion. Carrying with intention. Mediterranean lifestyle. Those who know, know. No products in Monvoy imagery — atmosphere only.
 
 Return ONLY valid JSON, all strings on single lines, no markdown fences:
-{"youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["","",""],"tiktok_scripts":["",""],"pinterest_pins":["","","","",""],"suno_prompt":"","image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","track_structure":"","outreach_brief":""}
+{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":"","youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["","",""],"tiktok_scripts":["",""],"pinterest_pins":["","","","",""],"outreach_brief":""}
 
 QUALITY STANDARDS:
 youtube_title: BRAND NAME in caps | descriptive keywords | year. Example: HERMES Boutique Music 2026 | Luxury Shopping Ambience | Elegant House Mix
@@ -213,7 +213,7 @@ Studio Shoot Music is a professional tool. Write like a working photographer —
 Session duration: ${dur} hours.
 
 Return ONLY valid JSON, all strings on single lines, no markdown fences:
-{"youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["",""],"tiktok_scripts":[""],"suno_prompt":"","image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","track_structure":""}
+{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":"","youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["",""],"tiktok_scripts":[""]}
 
 QUALITY STANDARDS:
 youtube_title: Professional, searchable. Include shoot context and year.
@@ -241,7 +241,7 @@ Output: ${outputType}`;
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 3000,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
       })
