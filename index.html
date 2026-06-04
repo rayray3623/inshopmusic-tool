@@ -246,9 +246,9 @@ function randomStudioMood(){
 
 async function callAPI(key,system,user,msgEl){
   if(msgEl)msgEl.textContent=user.split(',')[0]+'...';
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+  const resp=await fetch('/.netlify/functions/generate',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-api-access':'true'},
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,system,messages:[{role:'user',content:user}]})
   });
   const data=await resp.json();
