@@ -169,7 +169,7 @@ const LOCATIONS={
   "Chanel":["Paris, Avenue Montaigne, early morning before the city wakes","Paris, Saint-Germain-des-Prés, golden afternoon light through café windows","Paris, Palais Royal gardens, overcast October, fallen leaves","Paris, Le Marais, blue hour, soft rain on cobblestones","Côte d'Azur, private terrace, late June afternoon","Paris, Rue du Faubourg Saint-Honoré, crisp autumn morning","Deauville, seafront promenade, September, sea mist","Paris, rooftop with Eiffel Tower distant, champagne hour","Monaco, harbour view, soft spring evening","Paris, Tuileries garden, Sunday afternoon, winter light"],
   "Prada":["Milan, Galleria Vittorio Emanuele II, early morning, empty","Milan, Brera district, overcast November, architectural shadows","Milan, Fondazione Prada, late afternoon, industrial light","Venice, Dorsoduro, winter morning, mist on the canal","Milan, fashion week, backstage before the show","Rome, Parioli district, cool autumn afternoon","Milan, brutalist architecture, blue hour","Florence, Oltrarno, dusk, amber lamplight","Milan, rooftop terrace, grey sky, January","Turin, modernist interior, overcast, clean shadows"],
   "Hermes":["Paris, 24 Faubourg Saint-Honoré, midday, quiet","Normandy countryside, horse paddock, golden September morning","Paris, Bois de Boulogne, early autumn ride","Loire Valley, chateau grounds, late afternoon harvest light","Camargue, white horses, dawn mist","Deauville, polo grounds, summer afternoon","Paris, private courtyard, midday September sun","Sologne forests, October morning, dew on grass","Île de Ré, white walls and blue shutters, August","Burgundy vineyard, October, harvest light"],
-  "Dior":["Paris, couture atelier, final fitting, morning light","Paris, Jardin des Tuileries, fashion week September","Versailles gardens, late afternoon golden hour","Paris, Palais Royal, grey February morning","Cannes, Croisette terrace, film festival evening","Paris, Pont Alexandre III, blue hour","Normandy, Granville, Bar-sur-Aube, grey Atlantic sky","Paris, Place Vendôme, early morning, empty square","Château de la Marquise, autumn afternoon","Paris, ballet rehearsal room, winter morning light"],
+  "Dior":["Paris, couture atelier, final fitting, morning light","Paris, Jardin des Tuileries, fashion week September","Versailles gardens, late afternoon golden hour","Paris, Palais Royal, grey February morning","Cannes, Croisette terrace, film festival evening","Paris, Pont Alexandre III, blue hour","Normandy, Granville, grey Atlantic sky","Paris, Place Vendôme, early morning, empty square","Château de la Marquise, autumn afternoon","Paris, ballet rehearsal room, winter morning light"],
   "Armani":["Milan, luxury hotel lobby, Sunday morning, quiet","Lake Como, villa terrace, evening aperitivo","Venice, Cipriani terrace, golden afternoon","Portofino, harbour restaurant, late lunch","Capri, clifftop terrace, warm September evening","Milan, Navigli, early evening, soft light on the canal","Rome, rooftop terrace, July dusk","Sardinia, private cove, afternoon siesta light","Florence, Oltrarno, Sunday morning, sunlight through shutters","Bologna, colonnaded street, November afternoon"],
   "Saint Laurent":["Paris, Le Palace, night, 1970s ghost","Paris, Saint-Germain, brasserie late night","Marrakech, riad courtyard, midnight","Paris, Pigalle, neon blue hour","Los Angeles, Chateau Marmont terrace, 2am","Paris, after the show, backstage shadows","Ibiza, hilltop villa, midnight June","Paris, Left Bank, last cigarette before dawn","New York, SoHo loft, midnight shoot","Tokyo, Roppongi, neon rain, 3am"],
   "Louis Vuitton":["Heathrow Terminal 5, first class lounge, early morning","Orient Express, crossing the Alps, dawn","Hong Kong, The Peninsula, harbour view, dusk","Tokyo, Ando-designed space, morning light","Paris CDG, departure hall, golden hour","Dubai, first class lounge, connecting flight","New York, JFK Terminal 4, late evening","Singapore Airlines suite, above the clouds","Venice, water taxi arriving at the Cipriani","Marrakech, La Mamounia terrace, sunset"],
@@ -254,7 +254,6 @@ function randomStyling(){
     result=s[Math.floor(Math.random()*s.length)];
   } else {
     const garment=s.garments?s.garments[Math.floor(Math.random()*s.garments.length)]:'';
-    const fabric=s.fabrics?s.fabrics[Math.floor(Math.random()*s.fabrics.length)]:'';
     const acc=s.accessories?s.accessories[Math.floor(Math.random()*s.accessories.length)]:'';
     const sil=s.silhouettes?s.silhouettes[Math.floor(Math.random()*s.silhouettes.length)]:'';
     result=[garment,acc,sil].filter(Boolean).join(', ');
@@ -295,7 +294,16 @@ async function generate(){
     const resp=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await resp.json();
     if(!resp.ok||data.error){throw new Error(data.error||`HTTP ${resp.status}`);}
-    outputs=data.result;
+    if(data.result){
+      outputs=data.result;
+    } else if(data.content){
+      const raw=data.content.map(i=>i.text||'').join('');
+      const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
+      if(s===-1||e===-1)throw new Error('No JSON in response. Please try again.');
+      outputs=JSON.parse(raw.slice(s,e+1));
+    } else {
+      throw new Error('Unexpected response format. Please try again.');
+    }
     renderOutput(outputType,brand||sessionName,sessionName);
   }catch(err){
     document.getElementById('main').innerHTML=`<div class="error-card"><strong>Error:</strong> ${err.message}</div>`;
