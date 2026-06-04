@@ -291,7 +291,7 @@ tiktok_scripts: 1 short script, studio environment, 30 seconds.`;
       }
     }
 
-    return { statusCode: 200, headers, body: JSON.stringify({ content: [{ text: JSON.stringify(result) }] }) };
+   return { statusCode: 200, headers, body: JSON.stringify({ result }) };
 
   } catch(err) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
