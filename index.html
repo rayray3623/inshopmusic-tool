@@ -229,20 +229,13 @@ async function callAPI(system,user){
     const end=i<sections.length-1?raw.indexOf('##'+sections[i+1]+'##'):raw.length;
     result[sec.toLowerCase()]=raw.slice(start+'##'+sec+'##'.length,end).trim();
   });
-  // Fallback: try JSON if markers not found
   if(!result.thumbnail_prompt){
-    const clean=raw.replace(/```json/g,'').replace(/```/g,'').trim();
-    const s=clean.indexOf('{'),e=clean.lastIndexOf('}');
-    if(s!==-1&&e!==-1){
-      try{const j=JSON.parse(clean.slice(s,e+1));
-        result.thumbnail_prompt=j.thumbnail_prompt||j.image_prompt_thumbnail||'';
-        result.video_prompt=j.video_prompt||j.image_prompt_video||'';
-        result.art_direction=j.art_direction||'';
-        result.music_prompt=j.music_prompt||j.suno_prompt||'';
-      }catch(e2){}
-    }
+    // Show raw output for debugging
+    result.thumbnail_prompt='SYSTEM PROMPT NOT RECEIVED. Raw API output was:\n\n'+raw;
+    result.video_prompt='';
+    result.art_direction='';
+    result.music_prompt='';
   }
-  if(!result.thumbnail_prompt)throw new Error('Could not parse response. Raw output: '+raw.substring(0,400));
   return result;
 }
 
