@@ -160,78 +160,7 @@ exports.handler = async function(event, context) {
   const p = PROFILES[brand] || {};
   const dur = duration || 2;
 
-  let systemPrompt, userPrompt;
-
-  if (channel === 'inshop' && brand) {
-    systemPrompt = `You are the creative director for InShopMusic, an independent luxury ambient music channel. Think like a senior luxury agency creative — not a content tool. InShopMusic is NOT associated with Monvoy publicly.
-
-BRAND: ${brand}
-Territory: ${p.t}
-Atmosphere: ${p.a}
-Music style: ${p.s}
-Colour palette: ${p.p}
-Caption voice: ${p.cv}
-Session duration: ${dur} hours
-
-MODEL & ART DIRECTION:
-Model: ${p.model}
-Styling provided: ${styling || 'use brand-appropriate styling from your knowledge'}
-Expression: ${p.expression}
-Lighting: ${p.lighting}
-Background: ${p.background}
-
-Monvoy context (outreach brief only): British-German luxury leather goods. Key organisers, glasses cases, luggage tags. Luxury in motion. Carrying with intention. Mediterranean lifestyle. Those who know, know. No products in Monvoy imagery — atmosphere only.
-
-Return ONLY valid JSON, all strings on single lines, no markdown fences:
-{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":"","youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["","",""],"tiktok_scripts":["",""],"pinterest_pins":["","","","",""],"outreach_brief":""}
-
-QUALITY STANDARDS:
-youtube_title: BRAND NAME in caps | descriptive keywords | year. Example: HERMES Boutique Music 2026 | Luxury Shopping Ambience | Elegant House Mix
-youtube_description: 4-5 sentences. Open atmospherically. List use cases. End with subscribe line.
-instagram_captions: Sound like the brand's own creative director. Voice: ${p.cv}. No hashtags. No emoji. Max two sentences. Benchmark: "Timeless elegance never needs to raise its voice."
-suno_prompt: Detailed music generation prompt for this brand, session and location. Include BPM, instruments, atmosphere, duration ${dur} hours, no jarring transitions.
-image_prompt_thumbnail: Full Midjourney prompt — model, styling, expression, lighting, background per art direction above. Include: large space at top for brand name typography in ${p.p} palette. Ultra realistic, 8K, magazine cover composition.
-image_prompt_video: Same scene but clean — no typography space needed, slightly wider crop, the image holds for ${dur} hours of viewing. Ultra realistic, 8K.
-art_direction: Readable labelled breakdown — Model | Styling | Expression | Lighting | Background | Palette — each on its own line. Reference document for image generation sessions.
-track_structure: Creative direction for ${dur === 1 ? 3 : dur === 3 ? 6 : 5} phases of the ${dur}-hour session. What each phase should feel like emotionally, not just technically. Phase names: ${dur === 1 ? 'Intro / Main Body / Close' : dur === 3 ? 'Intro / Build / Main Body / Sustained / Intimate / Close' : 'Intro / Build / Main Body / Intimate / Close'}.
-outreach_brief: Warm message to an established ambient YouTube channel. Propose they produce a Monvoy-branded atmospheric clip in their own style, full credit throughout, fee open. One creative reaching out to another — not a corporate brief.`;
-
-    userPrompt = `Brand: ${brand}
-Session: ${session}
-Location/atmosphere: ${location || 'brand signature atmosphere'}
-Styling: ${styling || 'randomised brand-appropriate'}
-Duration: ${dur} hours
-Output: ${outputType}`;
-
-  } else {
-    systemPrompt = `You are the creative director for Studio Shoot Music, an independent ambient music channel curated for photo shoots, film sets and creative studios. The music is always energetic and forward-moving — slow music kills shoot energy. Long sets, no jarring transitions, nothing that competes with direction on set but always maintaining momentum.
-
-BPM range: 124-130. Never slow. Always driving. Think: busy editorial shoot, fashion week backstage, fast-paced commercial production.
-
-Studio Shoot Music is a professional tool. Write like a working photographer — direct, professional, atmospheric. Monvoy (luxury leather goods) appears naturally in this world — never promoted, simply present.
-
-Session duration: ${dur} hours.
-
-Return ONLY valid JSON, all strings on single lines, no markdown fences:
-{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":"","youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["",""],"tiktok_scripts":[""]}
-
-QUALITY STANDARDS:
-youtube_title: Professional, searchable. Include shoot context and year.
-youtube_description: Functional and atmospheric. Name use cases. Mention energetic long sets, no jarring transitions.
-instagram_captions: Working photographer wrote these. No lifestyle language. Direct, professional.
-suno_prompt: Energetic ambient music for creative professionals. 124-130 BPM. Forward momentum throughout. No slow sections. ${dur} hours continuous.
-image_prompt_thumbnail: Professional studio or shoot environment. Models or crew at work, natural energy. Clean aesthetic, natural light. Monvoy leather piece present naturally on a surface. Large space for typography. Ultra realistic 8K.
-image_prompt_video: Same environment, slightly wider, clean — no typography space. Holds for ${dur} hours of viewing. Ultra realistic 8K.
-art_direction: Labelled breakdown — Environment | Lighting | Mood | Props | Colour palette — each on its own line.
-track_structure: Creative direction for ${dur === 1 ? 3 : dur === 3 ? 6 : 5} phases keeping energy high throughout. Never lets the room drop.`;
-
-    userPrompt = `Session: ${session}
-Mood: ${mood || 'high energy creative environment, editorial shoot day'}
-Duration: ${dur} hours
-Output: ${outputType}`;
-  }
-
-  try {
+  async function callAPI(system, user) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -241,15 +170,128 @@ Output: ${outputType}`;
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }]
+        max_tokens: 2000,
+        system,
+        messages: [{ role: 'user', content: user }]
       })
     });
-
     const data = await response.json();
-    if (!response.ok) return { statusCode: response.status, headers, body: JSON.stringify({ error: data.error?.message || `API error ${response.status}` }) };
-    return { statusCode: 200, headers, body: JSON.stringify(data) };
+    if (!response.ok) throw new Error(data.error?.message || `API error ${response.status}`);
+    const raw = data.content.map(i => i.text || '').join('');
+    const s = raw.indexOf('{'), e = raw.lastIndexOf('}');
+    if (s === -1 || e === -1) throw new Error('No JSON in response');
+    return JSON.parse(raw.slice(s, e + 1));
+  }
+
+  try {
+    let result = {};
+
+    if (channel === 'inshop' && brand) {
+      const baseContext = `BRAND: ${brand}
+Territory: ${p.t}
+Atmosphere: ${p.a}
+Music style: ${p.s}
+Colour palette: ${p.p}
+Caption voice: ${p.cv}
+Duration: ${dur} hours
+Model: ${p.model}
+Styling: ${styling || 'brand-appropriate'}
+Expression: ${p.expression}
+Lighting: ${p.lighting}
+Background: ${p.background}
+Location: ${location || 'brand signature atmosphere'}`;
+
+      const needsProduction = outputType === 'full' || outputType === 'production';
+      const needsSocial = outputType === 'full' || outputType === 'social';
+      const needsOutreach = outputType === 'full' || outputType === 'outreach';
+
+      if (needsProduction) {
+        const prodSystem = `You are the creative director for InShopMusic, a luxury ambient music channel. Think like a senior luxury agency creative.
+
+${baseContext}
+
+Return ONLY valid JSON, single line strings, no markdown:
+{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":""}
+
+image_prompt_thumbnail: Detailed Midjourney prompt. Model per description above wearing the provided styling. Expression per above. Lighting per above. Background in ${p.p} palette with large space at top for brand name typography. Ultra realistic, 8K, magazine cover composition.
+image_prompt_video: Same scene, slightly wider, no typography space needed, clean for ${dur} hour viewing. Ultra realistic 8K.
+art_direction: Labelled lines — Model | Styling | Expression | Lighting | Background | Palette
+suno_prompt: Music generation prompt with BPM, instruments, atmosphere, ${dur} hours, no jarring transitions.
+track_structure: Creative direction for ${dur === 1 ? 3 : dur === 3 ? 6 : 5} phases (${dur === 1 ? 'Intro / Main Body / Close' : dur === 3 ? 'Intro / Build / Main Body / Sustained / Intimate / Close' : 'Intro / Build / Main Body / Intimate / Close'}). What each phase feels like emotionally.`;
+
+        const prodResult = await callAPI(prodSystem, `Brand: ${brand}, Session: ${session}, Location: ${location || 'brand atmosphere'}, Styling: ${styling || 'brand-appropriate'}, Duration: ${dur}h`);
+        result = { ...result, ...prodResult };
+      }
+
+      if (needsSocial) {
+        const socialSystem = `You are the creative director for InShopMusic, a luxury ambient music channel. Think like a senior luxury agency creative. InShopMusic is NOT associated with Monvoy.
+
+${baseContext}
+
+Return ONLY valid JSON, single line strings, no markdown:
+{"youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["","",""],"tiktok_scripts":["",""],"pinterest_pins":["","","","",""]}
+
+youtube_title: BRAND NAME in caps | descriptive keywords | year. Example: HERMES Boutique Music 2026 | Luxury Shopping Ambience | Elegant House Mix
+youtube_description: 4-5 sentences. Open atmospherically. List use cases (luxury retail, boutiques, hotel lounges, work, study). Subscribe line at end.
+instagram_captions: 3 variants. Voice: ${p.cv}. No hashtags, no emoji, max 2 sentences each. Sound like the brand's own creative director. Benchmark: "Timeless elegance never needs to raise its voice."
+spotify_description: 2-3 sentences, atmospheric, passive listening tone.
+tiktok_scripts: 2 short scripts, 30-45 seconds, scene-setting, atmospheric, no hard sell.
+pinterest_pins: 5 pin descriptions targeting luxury lifestyle search terms.`;
+
+        const socialResult = await callAPI(socialSystem, `Brand: ${brand}, Session: ${session}, Location: ${location || 'brand atmosphere'}`);
+        result = { ...result, ...socialResult };
+      }
+
+      if (needsOutreach) {
+        const outreachSystem = `You are writing on behalf of Monvoy, a British-German luxury leather goods brand. Key organisers, glasses cases, luggage tags. Luxury in motion. Carrying with intention. Mediterranean lifestyle. Those who know, know.
+
+Return ONLY valid JSON, single line strings, no markdown:
+{"outreach_brief":""}
+
+outreach_brief: A warm message to an established ambient YouTube channel proposing they produce a Monvoy-branded atmospheric clip in their own style. Their full production credit throughout. Fee open. One creative reaching out to another — not a corporate brief. 150-200 words.`;
+
+        const outreachResult = await callAPI(outreachSystem, `Channel style: ${brand}-adjacent luxury ambient. Session context: ${session}`);
+        result = { ...result, ...outreachResult };
+      }
+
+    } else {
+      const needsProduction = outputType === 'full' || outputType === 'production';
+      const needsSocial = outputType === 'full' || outputType === 'social';
+
+      if (needsProduction) {
+        const prodSystem = `You are the creative director for Studio Shoot Music, ambient music for photo shoots and film sets. Always energetic, 124-130 BPM, forward momentum, never slow. ${dur} hours.
+
+Return ONLY valid JSON, single line strings, no markdown:
+{"image_prompt_thumbnail":"","image_prompt_video":"","art_direction":"","suno_prompt":"","track_structure":""}
+
+image_prompt_thumbnail: Professional studio or shoot environment. Crew at work, natural energy. Clean aesthetic, natural light. Monvoy leather piece on a surface naturally. Large typography space. Ultra realistic 8K.
+image_prompt_video: Same, slightly wider, no typography space, holds for ${dur} hours. Ultra realistic 8K.
+art_direction: Labelled lines — Environment | Lighting | Mood | Props | Colour palette
+suno_prompt: Energetic creative professional ambient. 124-130 BPM. No slow sections. ${dur} hours continuous.
+track_structure: ${dur === 1 ? 3 : dur === 3 ? 6 : 5} phases keeping energy high throughout. Never lets the room drop.`;
+
+        const prodResult = await callAPI(prodSystem, `Session: ${session}, Mood: ${mood || 'high energy editorial shoot'}, Duration: ${dur}h`);
+        result = { ...result, ...prodResult };
+      }
+
+      if (needsSocial) {
+        const socialSystem = `You are the creative director for Studio Shoot Music, ambient music for photo shoots and film sets. Write like a working photographer — direct, professional. Monvoy appears naturally, never promoted.
+
+Return ONLY valid JSON, single line strings, no markdown:
+{"youtube_title":"","youtube_description":"","youtube_tags":"","spotify_description":"","instagram_captions":["",""],"tiktok_scripts":[""]}
+
+youtube_title: Professional, searchable, shoot context, year.
+youtube_description: Functional and atmospheric. Use cases. Energetic long sets, no jarring transitions.
+instagram_captions: 2 variants. Working photographer voice. Direct, professional, no lifestyle language.
+spotify_description: 2 sentences, functional and atmospheric.
+tiktok_scripts: 1 short script, studio environment, 30 seconds.`;
+
+        const socialResult = await callAPI(socialSystem, `Session: ${session}, Mood: ${mood || 'high energy editorial shoot'}`);
+        result = { ...result, ...socialResult };
+      }
+    }
+
+    return { statusCode: 200, headers, body: JSON.stringify({ content: [{ text: JSON.stringify(result) }] }) };
 
   } catch(err) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
