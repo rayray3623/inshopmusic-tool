@@ -260,6 +260,7 @@ async function callAPI(key,system,user,msgEl){
 }
 
 async function generate(){
+  const activeChannel=currentChannel;
   const key=localStorage.getItem('ism_api_key')||document.getElementById('api-key').value.trim();
   if(!key){alert('Please enter and save your Anthropic API key first.');return;}
 
@@ -267,7 +268,7 @@ async function generate(){
   const dur=parseInt(document.getElementById('duration').value)||2;
   let brand,sessionName,loc,styling;
 
-  if(currentChannel==='inshop'){
+  if(activeChannel==='inshop'){
     brand=document.getElementById('brand').value;
     sessionName=document.getElementById('sname').value.trim();
     loc=document.getElementById('loc').value.trim();
@@ -295,7 +296,7 @@ async function generate(){
     outputs={};
     const p=PROFILES[brand]||{};
 
-    if(currentChannel==='inshop'){
+    if(activeChannel==='inshop'){
       const ctx=`BRAND: ${brand}\nTerritory: ${p.t}\nAtmosphere: ${p.a}\nMusic: ${p.s}\nPalette: ${p.p}\nCaption voice: ${p.cv}\nModel: ${p.model}\nExpression: ${p.expression}\nLighting: ${p.lighting}\nBackground: ${p.background}\nStyling: ${styling||'brand-appropriate'}\nLocation: ${loc||'brand signature atmosphere'}\nDuration: ${dur} hours`;
 
       const needsProd=outputType==='full'||outputType==='production';
