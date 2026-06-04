@@ -218,11 +218,32 @@ async function callAPI(system,user){
     body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,system,messages:[{role:'user',content:user}]})
   });
   const data=await resp.json();
-  if(!resp.ok)throw new Error(data.error||`HTTP ${resp.status}`);
-  const raw=data.content.map(i=>i.text||'').join('').replace(/```json/g,'').replace(/```/g,'').trim();
-  const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
-  if(s===-1||e===-1)throw new Error('No JSON found. Got: '+raw.substring(0,300));
-  return JSON.parse(raw.slice(s,e+1));
+  if(!resp.ok)throw new Error(data.error||'HTTP '+resp.status);
+  const raw=data.content.map(i=>i.text||'').join('');
+  // Parse using section markers instead of JSON
+  const result={};
+  const sections=['THUMBNAIL_PROMPT','VIDEO_PROMPT','ART_DIRECTION','MUSIC_PROMPT'];
+  sections.forEach((sec,i)=>{
+    const start=raw.indexOf('##'+sec+'##');
+    if(start===-1)return;
+    const end=i<sections.length-1?raw.indexOf('##'+sections[i+1]+'##'):raw.length;
+    result[sec.toLowerCase()]=raw.slice(start+'##'+sec+'##'.length,end).trim();
+  });
+  // Fallback: try JSON if markers not found
+  if(!result.thumbnail_prompt){
+    const clean=raw.replace(/```json/g,'').replace(/```/g,'').trim();
+    const s=clean.indexOf('{'),e=clean.lastIndexOf('}');
+    if(s!==-1&&e!==-1){
+      try{const j=JSON.parse(clean.slice(s,e+1));
+        result.thumbnail_prompt=j.thumbnail_prompt||j.image_prompt_thumbnail||'';
+        result.video_prompt=j.video_prompt||j.image_prompt_video||'';
+        result.art_direction=j.art_direction||'';
+        result.music_prompt=j.music_prompt||j.suno_prompt||'';
+      }catch(e2){}
+    }
+  }
+  if(!result.thumbnail_prompt)throw new Error('Could not parse response. Raw output: '+raw.substring(0,400));
+  return result;
 }
 
 async function generate(){
@@ -257,13 +278,19 @@ Styling: ${styling}
 Location: ${loc}
 Duration: ${dur} hours
 
-Return ONLY a valid JSON object. No markdown. No backticks. No explanation. Just the raw JSON:
-{"thumbnail_prompt":"","video_prompt":"","art_direction":"","music_prompt":""}
+Format your response using these exact section markers. No JSON. No markdown. Just the markers and content:
 
-thumbnail_prompt: A detailed Midjourney image generation prompt. Include the exact model description, wearing the provided styling, with the specified expression, in the specified lighting, against the specified background. Must include: ultra realistic, 8K, magazine cover composition, large empty space at top for ${brand.toUpperCase()} brand name typography in ${p.p} palette tones.
-video_prompt: Same image but slightly wider crop, no typography space needed, clean composition for looping ${dur}-hour video background. Ultra realistic 8K.
-art_direction: A clean reference sheet with labelled lines. Format exactly as: MODEL: [description] | STYLING: [description] | EXPRESSION: [description] | LIGHTING: [description] | BACKGROUND: [description] | PALETTE: [description]
-music_prompt: A detailed Suno/Udio music generation prompt. Include specific BPM from the music style, instruments, atmosphere, emotional quality. Specify ${dur} hours duration, no jarring transitions, designed for the ${loc} atmosphere.`;
+##THUMBNAIL_PROMPT##
+[A detailed Midjourney image generation prompt. Include the exact model description, wearing the provided styling, with the specified expression, in the specified lighting, against the specified background. Must include: ultra realistic, 8K, magazine cover composition, large empty space at top for ${brand.toUpperCase()} brand name typography in ${p.p} palette tones.]
+
+##VIDEO_PROMPT##
+[Same image but slightly wider crop, no typography space needed, clean composition for looping ${dur}-hour video background. Ultra realistic 8K.]
+
+##ART_DIRECTION##
+[A clean reference sheet. Format as: MODEL: description | STYLING: description | EXPRESSION: description | LIGHTING: description | BACKGROUND: description | PALETTE: description]
+
+##MUSIC_PROMPT##
+[A detailed Suno/Udio music generation prompt. Include specific BPM, instruments, atmosphere, emotional quality. ${dur} hours duration, no jarring transitions, designed for the ${loc} atmosphere.]`;
 
       const result=await callAPI(system,`Brand: ${brand}, Session: ${session}, Location: ${loc}, Styling: ${styling}, Duration: ${dur} hours`);
 
@@ -282,13 +309,19 @@ Session: ${session}
 Mood: ${mood}
 Duration: ${dur} hours
 
-Return ONLY a valid JSON object. No markdown. No backticks. No explanation. Just the raw JSON:
-{"thumbnail_prompt":"","video_prompt":"","art_direction":"","music_prompt":""}
+Format your response using these exact section markers. No JSON. No markdown. Just the markers and content:
 
-thumbnail_prompt: Midjourney prompt for a professional photo shoot environment. Crew at work, natural energy, clean aesthetic, natural light. A Monvoy leather key organiser or glasses case visible naturally on a surface. Large typography space at top. Ultra realistic 8K.
-video_prompt: Same environment, slightly wider, no typography space, holds for ${dur} hours viewing. Ultra realistic 8K.
-art_direction: MODEL: [crew/photographer at work] | ENVIRONMENT: [studio description] | LIGHTING: [lighting description] | PROPS: [Monvoy piece, equipment] | MOOD: [energy level] | PALETTE: [colour palette]
-music_prompt: Suno/Udio prompt for energetic creative professional ambient music. 124-130 BPM. Forward momentum throughout. No slow sections or drops. ${dur} hours continuous. Designed for ${mood}.`;
+##THUMBNAIL_PROMPT##
+[Midjourney prompt for a professional photo shoot environment. Crew at work, natural energy, clean aesthetic, natural light. A Monvoy leather key organiser or glasses case visible naturally on a surface. Large typography space at top. Ultra realistic 8K.]
+
+##VIDEO_PROMPT##
+[Same environment, slightly wider, no typography space, holds for ${dur} hours viewing. Ultra realistic 8K.]
+
+##ART_DIRECTION##
+[ENVIRONMENT: description | LIGHTING: description | PROPS: Monvoy piece and equipment | MOOD: energy level | PALETTE: colour palette]
+
+##MUSIC_PROMPT##
+[Suno/Udio prompt for energetic creative professional ambient. 124-130 BPM. Forward momentum. No slow sections. ${dur} hours continuous. Designed for ${mood}.]`;
 
       const result=await callAPI(system,`Session: ${session}, Mood: ${mood}, Duration: ${dur} hours`);
       showResults('Studio Shoot Music',session,result);
@@ -305,7 +338,7 @@ function showResults(brand,session,r){
     {key:'thumbnail_prompt',label:'Thumbnail Image Prompt'},
     {key:'video_prompt',label:'Video Background Prompt'},
     {key:'art_direction',label:'Art Direction'},
-    {key:'music_prompt',label:'Music Prompt'}
+    {key:'music_prompt',label:'Music Prompt (Suno/Udio)'}
   ];
 
   let html=`<div class="out-header"><div class="out-title">${esc(session)}</div><div class="out-sub">${esc(brand)} · Image & Music Package</div></div>`;
