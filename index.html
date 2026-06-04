@@ -295,10 +295,7 @@ async function generate(){
     const resp=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await resp.json();
     if(!resp.ok||data.error){throw new Error(data.error||`HTTP ${resp.status}`);}
-    const raw=data.content.map(i=>i.text||'').join('');
-    const s=raw.indexOf('{'),e=raw.lastIndexOf('}');
-    if(s===-1||e===-1)throw new Error('No JSON in response. Please try again.');
-    outputs=JSON.parse(raw.slice(s,e+1));
+    outputs=data.result;
     renderOutput(outputType,brand||sessionName,sessionName);
   }catch(err){
     document.getElementById('main').innerHTML=`<div class="error-card"><strong>Error:</strong> ${err.message}</div>`;
