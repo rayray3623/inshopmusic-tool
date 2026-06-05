@@ -219,12 +219,11 @@ async function callAPI(system,user){
   const resp=await fetch('/.netlify/functions/generate',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,system,messages:[{role:'user',content:user}]})
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1200,system,messages:[{role:'user',content:user}]})
   });
   const data=await resp.json();
   if(!resp.ok)throw new Error(data.error||'HTTP '+resp.status);
   const raw=data.content.map(i=>i.text||'').join('');
-  // Parse using section markers instead of JSON
   const result={};
   const sections=['THUMBNAIL_PROMPT','VIDEO_PROMPT','ART_DIRECTION','MUSIC_PROMPT'];
   sections.forEach((sec,i)=>{
@@ -236,12 +235,31 @@ async function callAPI(system,user){
     result[sec.toLowerCase()]=raw.slice(contentStart,end).trim();
   });
   if(!result.thumbnail_prompt){
-    // Show raw output for debugging
-    result.thumbnail_prompt='SYSTEM PROMPT NOT RECEIVED. Raw API output was:\n\n'+raw;
-    result.video_prompt='';
-    result.art_direction='';
-    result.music_prompt='';
+    result.thumbnail_prompt='Parse error. Raw: '+raw.substring(0,300);
   }
+  return result;
+}
+
+async function callAPISocial(system,user){
+  const key=localStorage.getItem('ca_key')||document.getElementById('kval').value.trim();
+  const resp=await fetch('/.netlify/functions/generate',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1200,system,messages:[{role:'user',content:user}]})
+  });
+  const data=await resp.json();
+  if(!resp.ok)return {};
+  const raw=data.content.map(i=>i.text||'').join('');
+  const result={};
+  const sections=['TRACK_STRUCTURE','YOUTUBE_TITLE','YOUTUBE_DESCRIPTION','INSTAGRAM_1','INSTAGRAM_2','INSTAGRAM_3'];
+  sections.forEach((sec,i)=>{
+    const marker='##'+sec+'##';
+    const start=raw.indexOf(marker);
+    if(start===-1)return;
+    const contentStart=start+marker.length;
+    const end=i<sections.length-1?raw.indexOf('##'+sections[i+1]+'##'):raw.length;
+    result[sec.toLowerCase()]=raw.slice(contentStart,end).trim();
+  });
   return result;
 }
 
@@ -293,7 +311,33 @@ Format your response using these exact section markers. No JSON. No markdown. Ju
 
       const result=await callAPI(system,`Brand: ${brand}, Session: ${session}, Location: ${loc}, Styling: ${styling}, Duration: ${dur} hours`);
 
-      showResults(brand,session,result);
+      // Second call for social content
+      setLoading('Generating social content...');
+      const socialSystem=`You are the creative director for InShopMusic, a luxury ambient music channel. Brand: ${brand}. Territory: ${p.t}. Atmosphere: ${p.a}. Caption voice: ${p.cv}. Location: ${loc}. Duration: ${dur} hours. Session: ${session}.
+
+Format using exact section markers, no JSON, no markdown:
+
+##TRACK_STRUCTURE##
+[Creative direction for ${dur==='1'?3:dur==='3'?6:5} phases of the ${dur}-hour session. Emotional quality of each phase. Phase names: ${dur==='1'?'Intro / Main / Close':dur==='3'?'Intro / Build / Main / Sustained / Intimate / Close':'Intro / Build / Main / Intimate / Close'}.]
+
+##YOUTUBE_TITLE##
+[${brand.toUpperCase()} | session description | 2025. Example: CHANEL Boutique Sessions | Luxury Ambient Music | 2025]
+
+##YOUTUBE_DESCRIPTION##
+[4-5 sentences. Open atmospherically, list use cases, end with: Subscribe to InShopMusic.]
+
+##INSTAGRAM_1##
+[Caption in this voice: ${p.cv}. No hashtags. No emoji. Max 2 sentences.]
+
+##INSTAGRAM_2##
+[Second variant, different angle, same voice.]
+
+##INSTAGRAM_3##
+[Third variant.]`;
+
+      const social=await callAPISocial(socialSystem,`Brand: ${brand}, Session: ${session}, Location: ${loc}`);
+      const combined={...result,...social};
+      showResults(brand,session,combined);
 
     } else {
       const session=document.getElementById('ssname').value.trim();
@@ -337,7 +381,13 @@ function showResults(brand,session,r){
     {key:'thumbnail_prompt',label:'Thumbnail Prompt'},
     {key:'video_prompt',label:'Video Prompt'},
     {key:'art_direction',label:'Art Direction'},
-    {key:'music_prompt',label:'Music Prompt'}
+    {key:'music_prompt',label:'Music Prompt'},
+    {key:'track_structure',label:'Track Structure'},
+    {key:'youtube_title',label:'YT Title'},
+    {key:'youtube_description',label:'YT Description'},
+    {key:'instagram_1',label:'Instagram 1'},
+    {key:'instagram_2',label:'Instagram 2'},
+    {key:'instagram_3',label:'Instagram 3'}
   ];
 
   const avail=tabs.filter(t=>r[t.key]&&r[t.key].trim());
