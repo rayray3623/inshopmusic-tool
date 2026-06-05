@@ -224,10 +224,12 @@ async function callAPI(system,user){
   const result={};
   const sections=['THUMBNAIL_PROMPT','VIDEO_PROMPT','ART_DIRECTION','MUSIC_PROMPT'];
   sections.forEach((sec,i)=>{
-    const start=raw.indexOf('##'+sec+'##');
+    const marker='##'+sec+'##';
+    const start=raw.indexOf(marker);
     if(start===-1)return;
+    const contentStart=start+marker.length;
     const end=i<sections.length-1?raw.indexOf('##'+sections[i+1]+'##'):raw.length;
-    result[sec.toLowerCase()]=raw.slice(start+'##'+sec+'##'.length,end).trim();
+    result[sec.toLowerCase()]=raw.slice(contentStart,end).trim();
   });
   if(!result.thumbnail_prompt){
     // Show raw output for debugging
