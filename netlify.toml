@@ -1,12 +1,6 @@
 [build]
   functions = "netlify/functions"
 
-[functions]
-  node_bundler = "zisi"
-
-[functions."generate"]
-  timeout = 30
-
 [[headers]]
   for = "/*"
   [headers.values]
