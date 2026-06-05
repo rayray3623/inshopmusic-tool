@@ -226,7 +226,7 @@ async function callAPI(system,user){
   const raw=data.content.map(i=>i.text||'').join('');
   // Parse using section markers instead of JSON
   const result={};
-  const sections=['THUMBNAIL_PROMPT','VIDEO_PROMPT','ART_DIRECTION','MUSIC_PROMPT','TRACK_STRUCTURE','YOUTUBE_TITLE','YOUTUBE_DESCRIPTION','INSTAGRAM_1','INSTAGRAM_2','INSTAGRAM_3','OUTREACH_BRIEF'];
+  const sections=['THUMBNAIL_PROMPT','VIDEO_PROMPT','ART_DIRECTION','MUSIC_PROMPT'];
   sections.forEach((sec,i)=>{
     const marker='##'+sec+'##';
     const start=raw.indexOf(marker);
@@ -289,28 +289,7 @@ Format your response using these exact section markers. No JSON. No markdown. Ju
 [A clean reference sheet. Format as: MODEL: description | STYLING: description | EXPRESSION: description | LIGHTING: description | BACKGROUND: description | PALETTE: description]
 
 ##MUSIC_PROMPT##
-[A detailed Suno/Udio music generation prompt. Include specific BPM, instruments, atmosphere, emotional quality. ${dur} hours duration, no jarring transitions, designed for the ${loc} atmosphere.]
-
-##TRACK_STRUCTURE##
-[Creative direction for ${dur===1?3:dur===3?6:5} phases of the ${dur}-hour session. What each phase should feel like emotionally. Phase names: ${dur===1?'Intro / Main Body / Close':dur===3?'Intro / Build / Main Body / Sustained / Intimate / Close':'Intro / Build / Main Body / Intimate / Close'}.]
-
-##YOUTUBE_TITLE##
-[${brand.toUpperCase()} | session name | year. Example: CHANEL Boutique Sessions | Luxury Ambient Music | 2025]
-
-##YOUTUBE_DESCRIPTION##
-[4-5 sentences. Open atmospherically. List use cases. End with: Subscribe to InShopMusic for more luxury boutique atmospheres.]
-
-##INSTAGRAM_1##
-[First caption in this voice: ${p.cv}. No hashtags. No emoji. Max 2 sentences.]
-
-##INSTAGRAM_2##
-[Second caption variant, different angle, same voice.]
-
-##INSTAGRAM_3##
-[Third caption variant.]
-
-##OUTREACH_BRIEF##
-[A warm 150-word message to an established ambient YouTube channel proposing they produce a Monvoy-branded atmospheric clip in their own style. Full credit throughout. Fee open. One creative to another. Monvoy: British-German luxury leather goods, luxury in motion, carrying with intention, Mediterranean lifestyle.]`;
+[A detailed Suno/Udio music generation prompt. Include specific BPM, instruments, atmosphere, emotional quality. ${dur} hours duration, no jarring transitions, designed for the ${loc} atmosphere.]`;
 
       const result=await callAPI(system,`Brand: ${brand}, Session: ${session}, Location: ${loc}, Styling: ${styling}, Duration: ${dur} hours`);
 
@@ -358,14 +337,7 @@ function showResults(brand,session,r){
     {key:'thumbnail_prompt',label:'Thumbnail Prompt'},
     {key:'video_prompt',label:'Video Prompt'},
     {key:'art_direction',label:'Art Direction'},
-    {key:'music_prompt',label:'Music Prompt'},
-    {key:'track_structure',label:'Track Structure'},
-    {key:'youtube_title',label:'YT Title'},
-    {key:'youtube_description',label:'YT Description'},
-    {key:'instagram_1',label:'Instagram 1'},
-    {key:'instagram_2',label:'Instagram 2'},
-    {key:'instagram_3',label:'Instagram 3'},
-    {key:'outreach_brief',label:'Outreach Brief'}
+    {key:'music_prompt',label:'Music Prompt'}
   ];
 
   const avail=tabs.filter(t=>r[t.key]&&r[t.key].trim());
@@ -378,7 +350,7 @@ function showResults(brand,session,r){
   const tabHtml=avail.map(t=>`<button class="tab${t.key===first?' active':''}" data-key="${t.key}" onclick="switchTab('${t.key}')">${t.label}</button>`).join('');
 
   document.getElementById('main').innerHTML=`<div style="padding:32px 40px">
-    <div class="out-header"><div class="out-title">${esc(session)}</div><div class="out-sub">${esc(brand)} · Content Package</div></div>
+    <div class="out-header"><div class="out-title">${esc(session)}</div><div class="out-sub">${esc(brand)} · Image & Music Package</div></div>
     <div class="tabs">${tabHtml}</div>
     <div id="tab-content"></div>
   </div>`;
