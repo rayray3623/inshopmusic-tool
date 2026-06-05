@@ -219,7 +219,7 @@ async function callAPI(system,user){
   const resp=await fetch('/.netlify/functions/generate',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,system,messages:[{role:'user',content:user}]})
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,system,messages:[{role:'user',content:user}]})
   });
   const data=await resp.json();
   if(!resp.ok)throw new Error(data.error||'HTTP '+resp.status);
