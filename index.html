@@ -12,12 +12,6 @@ body{background:var(--cream);color:var(--text);font-family:'Montserrat',sans-ser
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .wordmark{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:18px;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase}
 .wordmark span{font-size:10px;color:var(--text-muted);font-family:'Montserrat',sans-serif;font-weight:300;margin-left:14px;vertical-align:middle;letter-spacing:0.1em}
-.key-area{display:flex;align-items:center;gap:8px}
-.key-input{background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);font-family:'Montserrat',sans-serif;font-size:11px;padding:6px 12px;border-radius:2px;width:220px}
-.key-input:focus{outline:none;border-color:var(--gold)}
-.key-btn{background:transparent;border:1px solid var(--gold);color:var(--gold-dark);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.1em;padding:6px 14px;border-radius:2px;cursor:pointer;text-transform:uppercase}
-.key-btn:hover{background:var(--gold);color:white}
-.key-status{font-size:11px;color:var(--text-muted)}
 .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 61px)}
 .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 20px;position:sticky;top:61px;height:calc(100vh - 61px);overflow-y:auto}
 .slabel{font-size:10px;letter-spacing:0.2em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;margin-top:20px;display:block}
@@ -64,11 +58,6 @@ select:focus,input[type=text]:focus{outline:none;border-color:var(--gold)}
 
 <header class="header">
   <div class="wordmark">Content Assistant <span>v1 · Image & Music</span></div>
-  <div class="key-area">
-    <span class="key-status" id="kstat">No key</span>
-    <input class="key-input" type="password" id="kval" placeholder="sk-ant-api03-..." autocomplete="off">
-    <button class="key-btn" onclick="saveKey()">Save</button>
-  </div>
 </header>
 
 <div class="layout">
@@ -120,7 +109,8 @@ select:focus,input[type=text]:focus{outline:none;border-color:var(--gold)}
   <span class="slabel">Duration</span>
   <select id="duration">
     <option value="1">1 hour</option>
-    <option value="2" selected>2 hours</option>
+    <option value="1.25" selected>1 hour 15 min (75 min)</option>
+    <option value="2">2 hours</option>
     <option value="3">3 hours</option>
   </select>
 
@@ -162,17 +152,9 @@ const STYLES={Chanel:["classic tweed jacket, ivory lining, double strand of pear
 
 const SMOOD=["Fast-paced fashion editorial, morning, high energy crew","Commercial beauty shoot, bright studio, focused intensity","Fashion week backstage, controlled chaos, adrenaline","Product launch, sleek studio, precise and driven","Magazine cover shoot, polished high-energy precision","Jewellery campaign, macro studio, intense focus"];
 
-window.onload=()=>{
-  const k=localStorage.getItem('ca_key');
-  if(k){document.getElementById('kval').value=k;document.getElementById('kstat').textContent='Key saved ✓';document.getElementById('kstat').style.color='#7AAA7A';}
-};
-
-function saveKey(){
-  const k=document.getElementById('kval').value.trim();
-  if(!k)return;
-  localStorage.setItem('ca_key',k);
-  document.getElementById('kstat').textContent='Saved ✓';
-  document.getElementById('kstat').style.color='#7AAA7A';
+function durLabel(dur){
+  const map={'1':'1 hour','1.25':'1 hour 15 minutes (75 minutes)','2':'2 hours','3':'3 hours'};
+  return map[dur]||`${dur} hours`;
 }
 
 function onChannel(){
@@ -214,8 +196,6 @@ function setError(msg){
 }
 
 async function callAPI(system,user){
-  const key=localStorage.getItem('ca_key')||document.getElementById('kval').value.trim();
-  if(!key)throw new Error('No API key. Please enter and save your Anthropic key.');
   const resp=await fetch('/.netlify/functions/generate',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -241,7 +221,6 @@ async function callAPI(system,user){
 }
 
 async function callAPISocial(system,user){
-  const key=localStorage.getItem('ca_key')||document.getElementById('kval').value.trim();
   const resp=await fetch('/.netlify/functions/generate',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -293,7 +272,7 @@ Lighting: ${p.light}
 Background: ${p.bg}
 Styling: ${styling}
 Location: ${loc}
-Duration: ${dur} hours
+Duration: ${durLabel(dur)}
 
 Format your response using these exact section markers. No JSON. No markdown. Just the markers and content:
 
@@ -301,24 +280,24 @@ Format your response using these exact section markers. No JSON. No markdown. Ju
 [A detailed Midjourney image generation prompt. Include the exact model description, wearing the provided styling, with the specified expression, in the specified lighting, against the specified background. Must include: ultra realistic, 8K, magazine cover composition, large empty space at top for ${brand.toUpperCase()} brand name typography in ${p.p} palette tones.]
 
 ##VIDEO_PROMPT##
-[Same image but slightly wider crop, no typography space needed, clean composition for looping ${dur}-hour video background. Ultra realistic 8K.]
+[Same image but slightly wider crop, no typography space needed, clean composition for looping ${durLabel(dur)} video background. Ultra realistic 8K.]
 
 ##ART_DIRECTION##
 [A clean reference sheet. Format as: MODEL: description | STYLING: description | EXPRESSION: description | LIGHTING: description | BACKGROUND: description | PALETTE: description]
 
 ##MUSIC_PROMPT##
-[A detailed Suno/Udio music generation prompt. Include specific BPM, instruments, atmosphere, emotional quality. ${dur} hours duration, no jarring transitions, designed for the ${loc} atmosphere.]`;
+[A detailed Suno/Udio music generation prompt. Include specific BPM, instruments, atmosphere, emotional quality. ${durLabel(dur)} duration, no jarring transitions, designed for the ${loc} atmosphere. You must always explicitly state whether vocals are included. Start this section with a line in the exact format "VOCALS: Yes — [style, e.g. breathy female vocal, sparse hook-led, understated delivery]" or "VOCALS: No — instrumental only", based on what best fits ${p.s}, before describing the rest of the composition.]`;
 
-      const result=await callAPI(system,`Brand: ${brand}, Session: ${session}, Location: ${loc}, Styling: ${styling}, Duration: ${dur} hours`);
+      const result=await callAPI(system,`Brand: ${brand}, Session: ${session}, Location: ${loc}, Styling: ${styling}, Duration: ${durLabel(dur)}`);
 
       // Second call for social content
       setLoading('Generating social content...');
-      const socialSystem=`You are the creative director for InShopMusic, a luxury ambient music channel. Brand: ${brand}. Territory: ${p.t}. Atmosphere: ${p.a}. Caption voice: ${p.cv}. Location: ${loc}. Duration: ${dur} hours. Session: ${session}.
+      const socialSystem=`You are the creative director for InShopMusic, a luxury ambient music channel. Brand: ${brand}. Territory: ${p.t}. Atmosphere: ${p.a}. Caption voice: ${p.cv}. Location: ${loc}. Duration: ${durLabel(dur)}. Session: ${session}.
 
 Format using exact section markers, no JSON, no markdown:
 
 ##TRACK_STRUCTURE##
-[Creative direction for ${dur==='1'?3:dur==='3'?6:5} phases of the ${dur}-hour session. Emotional quality of each phase. Phase names: ${dur==='1'?'Intro / Main / Close':dur==='3'?'Intro / Build / Main / Sustained / Intimate / Close':'Intro / Build / Main / Intimate / Close'}.]
+[Creative direction for ${dur==='1'?3:dur==='3'?6:5} phases of the ${durLabel(dur)} session. Emotional quality of each phase. Phase names: ${dur==='1'?'Intro / Main / Close':dur==='3'?'Intro / Build / Main / Sustained / Intimate / Close':'Intro / Build / Main / Intimate / Close'}.]
 
 ##YOUTUBE_TITLE##
 [${brand.toUpperCase()} | session description | 2025. Example: CHANEL Boutique Sessions | Luxury Ambient Music | 2025]
@@ -350,7 +329,7 @@ Format using exact section markers, no JSON, no markdown:
 
 Session: ${session}
 Mood: ${mood}
-Duration: ${dur} hours
+Duration: ${durLabel(dur)}
 
 Format your response using these exact section markers. No JSON. No markdown. Just the markers and content:
 
@@ -358,15 +337,15 @@ Format your response using these exact section markers. No JSON. No markdown. Ju
 [Midjourney prompt for a professional photo shoot environment. Crew at work, natural energy, clean aesthetic, natural light. A Monvoy leather key organiser or glasses case visible naturally on a surface. Large typography space at top. Ultra realistic 8K.]
 
 ##VIDEO_PROMPT##
-[Same environment, slightly wider, no typography space, holds for ${dur} hours viewing. Ultra realistic 8K.]
+[Same environment, slightly wider, no typography space, holds for ${durLabel(dur)} viewing. Ultra realistic 8K.]
 
 ##ART_DIRECTION##
 [ENVIRONMENT: description | LIGHTING: description | PROPS: Monvoy piece and equipment | MOOD: energy level | PALETTE: colour palette]
 
 ##MUSIC_PROMPT##
-[Suno/Udio prompt for energetic creative professional ambient. 124-130 BPM. Forward momentum. No slow sections. ${dur} hours continuous. Designed for ${mood}.]`;
+[Suno/Udio prompt for energetic creative professional ambient. 124-130 BPM. Forward momentum. No slow sections. ${durLabel(dur)} continuous. Designed for ${mood}. Start this section with a line in the exact format "VOCALS: Yes — [style]" or "VOCALS: No — instrumental only" before describing the rest of the composition.]`;
 
-      const result=await callAPI(system,`Session: ${session}, Mood: ${mood}, Duration: ${dur} hours`);
+      const result=await callAPI(system,`Session: ${session}, Mood: ${mood}, Duration: ${durLabel(dur)}`);
       showResults('Studio Shoot Music',session,result);
     }
 
